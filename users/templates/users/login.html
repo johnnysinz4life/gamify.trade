@@ -1,53 +1,94 @@
 {% extends 'main/base.html' %}
 {% load static %}
 {% block title %}Login - gamify.trade{% endblock %}
+
 {% block content %}
-<div class="login-container">
-  <form id="login-form" action="{% url 'users:login' %}" method="post" onsubmit="return executeRecaptcha();" autocomplete="off">
-    {% csrf_token %}
+    <div class="login-container">
+        <h1>Sign In</h1>
 
-    <!-- Honeypot: random name passed from server -->
-    <input type="text" name="{{ hp_name }}"
-           autocomplete="new-password" tabindex="-1" aria-hidden="true" inputmode="none"
-           style="position:absolute; left:-10000px; top:auto; width:1px; height:1px; overflow:hidden;">
+        <form id="tf-login-form" method="post" {% if wizard.steps.current == 'auth' %}onsubmit="return execRC();"{% endif %} autocomplete="off">
+            {% csrf_token %}
+            {{ wizard.management_form }}
 
-    <!-- Timing fields -->
-    <input type="hidden" name="ts" id="login_ts">
-    <input type="hidden" name="elapsed" id="login_elapsed">
+            {# Show form validation errors #}
+            {% if wizard.form.non_field_errors %}
+                <div class="errorlist">
+                    {% for e in wizard.form.non_field_errors %}<div>{{ e }}</div>{% endfor %}
+                </div>
+            {% endif %}
 
-    <!-- reCAPTCHA v3 token -->
-    <input type="hidden" name="recaptcha-token" id="recaptcha-token">
+            {% if wizard.steps.current == 'auth' %}
+                {# Step 1: username/password #}
 
-    <input type="text" name="username" placeholder="Username (email)" required>
-    <input type="password" name="password" placeholder="Password" required>
-    <button type="submit">Login</button>
-  </form>
-</div>
+                {# Honeypot #}
+                <input type="text" name="{{ hp_name }}"
+                       autocomplete="new-password" tabindex="-1" aria-hidden="true" inputmode="none"
+                       style="position:absolute; left:-10000px; top:auto; width:1px; height:1px; overflow:hidden;">
 
-<!-- Timing script -->
-<script>
-(function () {
-  const start = Date.now() / 1000;
-  document.getElementById('login_ts').value = start.toFixed(3);
-  document.getElementById('login-form').addEventListener('submit', function () {
-    const elapsed = (Date.now() / 1000) - start;
-    document.getElementById('login_elapsed').value = elapsed.toFixed(3);
-  });
-})();
-</script>
+                {# Timing #}
+                <input type="hidden" name="ts" id="login_ts">
+                <input type="hidden" name="elapsed" id="login_elapsed">
 
-<!-- reCAPTCHA v3 (keep your working site key here) -->
-<script src="https://www.google.com/recaptcha/api.js?render=6LeMRm4qAAAAADD-PhyZEaZz2nWI4DMYqeYw43uP"></script>
-<script>
-function executeRecaptcha() {
-  grecaptcha.ready(function() {
-    grecaptcha.execute('6LeMRm4qAAAAADD-PhyZEaZz2nWI4DMYqeYw43uP', { action: 'login' })
-      .then(function(token) {
-        document.getElementById('recaptcha-token').value = token;
-        document.getElementById('login-form').submit(); // submit after token set
-      });
-  });
-  return false; // prevent default; we'll submit manually
-}
-</script>
+                {# reCAPTCHA token #}
+                <input type="hidden" name="recaptcha-token" id="recaptcha-token">
+
+                <div>
+                    <label for="{{ wizard.form.username.id_for_label }}">Username:</label>
+                    {{ wizard.form.username }}
+                    {% for e in wizard.form.username.errors %}<div class="errorlist">{{ e }}</div>{% endfor %}
+                </div>
+                <div>
+                    <label for="{{ wizard.form.password.id_for_label }}">Password:</label>
+                    {{ wizard.form.password }}
+                    {% for e in wizard.form.password.errors %}<div class="errorlist">{{ e }}</div>{% endfor %}
+                </div>
+
+                <button type="submit">Continue</button>
+
+            {% else %}
+                {# Step 2: OTP code #}
+                <p>Enter the 6-digit code from your authenticator app.</p>
+                <div>
+                    <label for="{{ wizard.form.otp_token.id_for_label }}">OTP Code:</label>
+                    {{ wizard.form.otp_token }}
+                    {% for e in wizard.form.otp_token.errors %}<div class="errorlist">{{ e }}</div>{% endfor %}
+                </div>
+
+                <p><a href="{% url 'two_factor:backup_tokens' %}">Use a backup code</a></p>
+
+                <button type="submit">Verify</button>
+            {% endif %}
+        </form>
+
+        <p>Don't have an account? <a href="{% url 'users:register' %}">Register here</a></p>
+    </div>
+
+    {% if wizard.steps.current == 'auth' %}
+        <script>
+        (function () {
+            const start = Date.now() / 1000;
+            document.getElementById('login_ts').value = start.toFixed(3);
+            document.getElementById('tf-login-form').addEventListener('submit', function () {
+                const elapsed = (Date.now() / 1000) - start;
+                document.getElementById('login_elapsed').value = elapsed.toFixed(3);
+            });
+        })();
+        </script>
+
+        <script src="https://www.google.com/recaptcha/api.js?render={{ RECAPTCHA_SITE_KEY|default:'6LeMRm4qAAAAADD-PhyZEaZz2nWI4DMYqeYw43uP' }}"></script>
+        <script>
+        function execRC() {
+            var siteKey = '{{ RECAPTCHA_SITE_KEY|default:"6LeMRm4qAAAAADD-PhyZEaZz2nWI4DMYqeYw43uP" }}';
+            if (!window.grecaptcha || !siteKey) return true;
+            grecaptcha.ready(function() {
+                grecaptcha.execute(siteKey, { action: 'login' })
+                    .then(function(token) {
+                        document.getElementById('recaptcha-token').value = token;
+                        document.getElementById('tf-login-form').submit();
+                    });
+            });
+            return false;
+        }
+        </script>
+    {% endif %}
 {% endblock %}

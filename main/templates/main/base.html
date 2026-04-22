@@ -13,12 +13,11 @@
         <div class="user-info">
             {% if request.user.is_authenticated %}
                 <span>{{ request.user.username }}</span>
-                <form action="{% url 'users:logout' %}" method="post">
+                <form action="{% url 'users:logout' %}" method="post" style="display:inline;">
                     {% csrf_token %}
                     <button type="submit">Logout</button>
                 </form>
             {% else %}
-                <a href="{% url 'users:login' %}">Login</a> <a href="{% url 'users:register' %}">Register</a>
             {% endif %}
         </div>
     </header>
