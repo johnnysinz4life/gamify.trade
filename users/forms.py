@@ -21,7 +21,7 @@ class UserRegistrationForm(UserCreationForm):
         if User.objects.filter(username__iexact=email).exists():
             raise forms.ValidationError("An account with this email already exists.")
         return email
-
+# Check if nickname is unique (case-insensitive)
     def clean_nickname(self):
         nick = self.cleaned_data.get("nickname", "").strip()
         if not nick:
@@ -97,9 +97,18 @@ class UserSettingsForm(forms.ModelForm):
                 profile.save(update_fields=['description', 'location'])
         return user
 
-
+# Account deletion confirmation
 class AccountDeleteForm(forms.Form):
     confirm = forms.BooleanField(
         required=True,
         label='I understand that deleting my account will remove my data permanently.',
+    )
+
+
+class NewListingForm(forms.Form):
+    title = forms.CharField(max_length=100, label='Listing title')
+    description = forms.CharField(
+        widget=forms.Textarea(attrs={'rows': 4}),
+        required=False,
+        label='Description',
     )

@@ -16,6 +16,7 @@ from .forms import (
     EmailAuthenticationForm,
     UserSettingsForm,
     AccountDeleteForm,
+    NewListingForm,
 )
 from .models import Profile
 
@@ -142,6 +143,22 @@ def settings_view(request):
             'profile': profile,
         },
     )
+
+@login_required(login_url='login')
+def newlist(request):
+    if request.method == 'POST':
+        form = NewListingForm(request.POST)
+        if form.is_valid():
+            messages.success(request, 'New listing created successfully.')
+            return redirect('users:home')
+    else:
+        form = NewListingForm()
+
+    return render(request, 'users/newlist.html', {'form': form})
+
+@login_required(login_url='login')
+def mainlist(request):
+    return redirect('main:home')
 
 @login_required(login_url='login')
 def user(request):

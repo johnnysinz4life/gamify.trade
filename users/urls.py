@@ -9,4 +9,6 @@ urlpatterns = [
     path('register/', views.register, name='register'), # Registeration page URL
     path('settings/', views.settings_view, name='settings'), # User settings page URL
     path('home/', views.home, name='home'), # Home page URL (after login)
+    path('newlist/', views.newlist, name='newlist'), # New listing page URL
+    path('mainlist/', views.mainlist, name='mainlist'), # Main list page URL (after login)
 ]

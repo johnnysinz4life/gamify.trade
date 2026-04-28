@@ -2,28 +2,34 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <!-- Base HTML code -->
     <title>{% block title %}gamify.trade{% endblock %}</title>
     <link rel="stylesheet" href="{% static 'main/styles.css' %}">
+    <!-- Directly styles base.html by routing to the static CSS file. -->
 </head>
 <body>
     <header>
         <div class="logo">
-            <img src="{% static 'main/logo_90.png' %}" alt="Gamify.trade Logo">
+            <img src="{% static 'main/logo_90.png' %}" alt="Gamify.trade Logo">     <!-- gamify.trade Logo -->
         </div>
         <div class="user-info">
             {% if request.user.is_authenticated %}
                 <span>{{ request.user.username }}</span>
-                <form action="{% url 'users:home' %}" method="post" style="display:inline;">
+                <form action="{% url 'users:home' %}" method="post" style="display:inline;">     <!-- Home Button -->
                     {% csrf_token %}
                     <button type="submit">Home</button>
                 </form>
-                <form action="{% url 'users:settings' %}" method="post" style="display:inline;">
+                <form action="{% url 'users:settings' %}" method="post" style="display:inline;"> <!-- Settings Button -->
                     {% csrf_token %}
                     <button type="submit">Settings</button>
                 </form>
-                <form action="{% url 'users:logout' %}" method="post" style="display:inline;">
+                <form action="{% url 'users:logout' %}" method="post" style="display:inline;"> <!-- Logout Button -->
                     {% csrf_token %}
                     <button type="submit">Logout</button>
+                </form>
+                <form action="{% url 'users:newlist' %}" method="post" style="display:inline;"> <!-- New Listing Button -->
+                    {% csrf_token %}
+                    <button type="submit">New Listing</button>
                 </form>
             {% else %}
             {% endif %}
@@ -32,7 +38,7 @@
     {% if messages %}
         <ul class="messages">
         {% for message in messages %}
-            <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+            <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li> <!-- Code to display any messages (like success or error notifications) to the user. -->
         {% endfor %}
         </ul>
     {% endif %}
