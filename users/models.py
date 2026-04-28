@@ -6,6 +6,7 @@ class Profile(models.Model):
     nickname = models.CharField(max_length=30, unique=True)
     description = models.TextField(blank=True, default='')
     location = models.CharField(max_length=100, blank=True, default='')
+    xp = models.PositiveIntegerField(default=0)
 
     def __str__(self):
         return f"{self.user.username}'s Profile"

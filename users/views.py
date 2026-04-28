@@ -165,9 +165,12 @@ def home(request):
         except TypeError:
             is_verified = bool(request.user.is_verified)
 
+    profile, _ = Profile.objects.get_or_create(user=request.user)
+
     context = {
         "has_device": has_device,
         "is_verified": is_verified,
         "user": request.user,
+        "profile": profile,
     }
     return render(request, "main/home.html", context)

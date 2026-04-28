@@ -9,6 +9,7 @@
 
     <section class="settings-section">
         <h2>Profile & Personal Info</h2>
+        <p><strong>Current XP:</strong> {{ profile.xp }}</p>
         <form method="post">
             {% csrf_token %}
             {{ profile_form.non_field_errors }}
