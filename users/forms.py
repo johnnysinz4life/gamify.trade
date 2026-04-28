@@ -1,6 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
 from .models import Profile
 
 class UserRegistrationForm(UserCreationForm):
@@ -51,4 +52,54 @@ class EmailAuthenticationForm(AuthenticationForm):
     username = forms.EmailField(
         label="Email",
         widget=forms.EmailInput(attrs={"autofocus": True})
+    )
+
+# Profile editing data for settings page
+class UserSettingsForm(forms.ModelForm):
+    description = forms.CharField(
+        required=False,
+        widget=forms.Textarea(attrs={'rows': 4}),
+        label='Profile description',
+    )
+    location = forms.CharField(
+        required=False,
+        max_length=100,
+        label='General location',
+    )
+
+    class Meta:
+        model = User
+        fields = ['email', 'first_name', 'last_name']
+
+    def __init__(self, *args, profile=None, **kwargs):
+        self.profile = profile
+        super().__init__(*args, **kwargs)
+        if profile is not None:
+            self.fields['description'].initial = profile.description
+            self.fields['location'].initial = profile.location
+
+    def clean_email(self):
+        email = self.cleaned_data['email'].strip().lower()
+        if User.objects.filter(username__iexact=email).exclude(pk=self.instance.pk).exists():
+            raise ValidationError("An account with this email already exists.")
+        return email
+
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        user.email = self.cleaned_data['email'].strip().lower()
+        user.username = user.email
+        if commit:
+            user.save()
+            profile = self.profile
+            if profile is not None:
+                profile.description = self.cleaned_data.get('description', '').strip()
+                profile.location = self.cleaned_data.get('location', '').strip()
+                profile.save(update_fields=['description', 'location'])
+        return user
+
+
+class AccountDeleteForm(forms.Form):
+    confirm = forms.BooleanField(
+        required=True,
+        label='I understand that deleting my account will remove my data permanently.',
     )

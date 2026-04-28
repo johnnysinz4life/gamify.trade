@@ -2,14 +2,22 @@ import secrets, requests
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.forms import PasswordChangeForm
+from django.contrib.auth import update_session_auth_hash
 from django.shortcuts import render, redirect
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
-from django.contrib import messages
 from django.utils.decorators import method_decorator
 from two_factor.views.core import LoginView as TFLoginView
-from .forms import UserRegistrationForm, EmailAuthenticationForm
+from django_otp.plugins.otp_totp.models import TOTPDevice
+from .forms import (
+    UserRegistrationForm,
+    EmailAuthenticationForm,
+    UserSettingsForm,
+    AccountDeleteForm,
+)
+from .models import Profile
 
 RECAPTCHA_VERIFY_URL = "https://www.google.com/recaptcha/api/siteverify"
 
@@ -93,6 +101,49 @@ def register(request):
     return render(request, 'users/register.html', {'form': form})
 
 @login_required(login_url='login')
+def settings_view(request):
+    profile, _ = Profile.objects.get_or_create(user=request.user)
+    if request.method == 'POST':
+        profile_form = UserSettingsForm(request.POST, instance=request.user, profile=profile)
+        password_form = PasswordChangeForm(request.user)
+        delete_form = AccountDeleteForm(request.POST)
+
+        if 'save_profile' in request.POST and profile_form.is_valid():
+            profile_form.save()
+            messages.success(request, 'Your account settings have been updated.')
+            return redirect('users:settings')
+
+        if 'change_password' in request.POST:
+            password_form = PasswordChangeForm(request.user, request.POST)
+            if password_form.is_valid():
+                password_form.save()
+                update_session_auth_hash(request, password_form.user)
+                messages.success(request, 'Your password has been updated.')
+                return redirect('users:settings')
+
+        if 'delete_account' in request.POST and delete_form.is_valid():
+            user = request.user
+            logout(request)
+            user.delete()
+            messages.success(request, 'Your account has been deleted. We are sorry to see you go.')
+            return redirect('login')
+    else:
+        profile_form = UserSettingsForm(instance=request.user, profile=profile)
+        password_form = PasswordChangeForm(request.user)
+        delete_form = AccountDeleteForm()
+
+    return render(
+        request,
+        'users/settings.html',
+        {
+            'profile_form': profile_form,
+            'password_form': password_form,
+            'delete_form': delete_form,
+            'profile': profile,
+        },
+    )
+
+@login_required(login_url='login')
 def user(request):
     return render(request, "main/home.html")
 
@@ -100,3 +151,23 @@ def logout_view(request):
     logout(request)
     messages.success(request, "Successfully logged out.")
     return redirect('login')
+
+@login_required(login_url='login')
+def home(request):
+    # Do they have any OTP device configured?
+    has_device = TOTPDevice.objects.filter(user=request.user, confirmed=True).exists()
+
+    # Are they verified in THIS session? (True after successful 2FA step)
+    is_verified = False
+    if hasattr(request.user, "is_verified"):
+        try:
+            is_verified = bool(request.user.is_verified())
+        except TypeError:
+            is_verified = bool(request.user.is_verified)
+
+    context = {
+        "has_device": has_device,
+        "is_verified": is_verified,
+        "user": request.user,
+    }
+    return render(request, "main/home.html", context)

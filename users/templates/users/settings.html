@@ -1,0 +1,82 @@
+{% extends 'main/base.html' %}
+{% load static %}
+{% block title %}Account Settings - gamify.trade{% endblock %}
+
+{% block content %}
+<div class="settings-page">
+    <h1>Account Settings</h1>
+    <p>Update personal information such as your email or delete all information pertaining to your account on this page.</p>
+
+    <section class="settings-section">
+        <h2>Profile & Personal Info</h2>
+        <form method="post">
+            {% csrf_token %}
+            {{ profile_form.non_field_errors }}
+            <div class="form-field">
+                <label for="id_email">Email</label>
+                {{ profile_form.email }}
+                {{ profile_form.email.errors }}
+            </div>
+            <div class="form-field">
+                <label for="id_first_name">First name</label>
+                {{ profile_form.first_name }}
+                {{ profile_form.first_name.errors }}
+            </div>
+            <div class="form-field">
+                <label for="id_last_name">Last name</label>
+                {{ profile_form.last_name }}
+                {{ profile_form.last_name.errors }}
+            </div>
+            <div class="form-field">
+                <label for="id_location">General location</label>
+                {{ profile_form.location }}
+                {{ profile_form.location.errors }}
+            </div>
+            <div class="form-field">
+                <label for="id_description">Description</label>
+                {{ profile_form.description }}
+                {{ profile_form.description.errors }}
+            </div>
+            <button type="submit" name="save_profile">Save profile settings</button>
+        </form>
+    </section>
+
+    <section class="settings-section">
+        <h2>Password</h2>
+        <form method="post">
+            {% csrf_token %}
+            {{ password_form.non_field_errors }}
+            <div class="form-field">
+                <label for="id_old_password">Current password</label>
+                {{ password_form.old_password }}
+                {{ password_form.old_password.errors }}
+            </div>
+            <div class="form-field">
+                <label for="id_new_password1">New password</label>
+                {{ password_form.new_password1 }}
+                {{ password_form.new_password1.errors }}
+            </div>
+            <div class="form-field">
+                <label for="id_new_password2">Confirm new password</label>
+                {{ password_form.new_password2 }}
+                {{ password_form.new_password2.errors }}
+            </div>
+            <button type="submit" name="change_password">Change password</button>
+        </form>
+    </section>
+
+    <section class="settings-section settings-danger">
+        <h2>Delete Account</h2>
+        <p>This cannot be undone. Deleting your account removes your user profile and any associated data.</p>
+        <form method="post">
+            {% csrf_token %}
+            {{ delete_form.non_field_errors }}
+            <div class="form-field">
+                {{ delete_form.confirm }}
+                {{ delete_form.confirm.errors }}
+            </div>
+            <button type="submit" name="delete_account">Delete my account</button>
+        </form>
+    </section>
+</div>
+{% endblock %}
