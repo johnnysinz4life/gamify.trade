@@ -2,7 +2,8 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
-from .models import Profile
+from django.db import IntegrityError, transaction
+from .models import Profile, Listing
 
 class UserRegistrationForm(UserCreationForm):
     email = forms.EmailField(required=True, label="Email")
@@ -40,11 +41,12 @@ class UserRegistrationForm(UserCreationForm):
         user.last_name = self.cleaned_data['surname']
 
         if commit:
-            user.save()
-            # ensure profile & nickname
-            profile, _ = Profile.objects.get_or_create(user=user)
-            profile.nickname = self.cleaned_data['nickname']
-            profile.save(update_fields=['nickname'])
+            with transaction.atomic():
+                user.save()
+                try:
+                    Profile.objects.create(user=user, nickname=self.cleaned_data['nickname'])
+                except IntegrityError:
+                    raise ValidationError({'nickname': "This nickname is already taken."})
         return user
 
 
@@ -105,10 +107,18 @@ class AccountDeleteForm(forms.Form):
     )
 
 
-class NewListingForm(forms.Form):
-    title = forms.CharField(max_length=100, label='Listing title')
-    description = forms.CharField(
-        widget=forms.Textarea(attrs={'rows': 4}),
-        required=False,
-        label='Description',
-    )
+class NewListingForm(forms.ModelForm):
+    class Meta:
+        model = Listing
+        fields = ['title', 'description']
+
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop('user', None)
+        super().__init__(*args, **kwargs)
+
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+        instance.user = self.user
+        if commit:
+            instance.save()
+        return instance

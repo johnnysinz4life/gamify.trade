@@ -1,9 +1,10 @@
-import secrets, requests
+from django.db import models
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth import update_session_auth_hash
+from django.core.exceptions import ValidationError
 from django.shortcuts import render, redirect
 from django.http import HttpResponseRedirect
 from django.urls import reverse
@@ -18,9 +19,17 @@ from .forms import (
     AccountDeleteForm,
     NewListingForm,
 )
-from .models import Profile
+from .models import Profile, Listing
 
 RECAPTCHA_VERIFY_URL = "https://www.google.com/recaptcha/api/siteverify"
+
+def get_or_create_profile(user):
+    defaults = {'nickname': Profile.generate_unique_nickname(user)}
+    profile, _ = Profile.objects.get_or_create(user=user, defaults=defaults)
+    if not profile.nickname:
+        profile.nickname = Profile.generate_unique_nickname(user)
+        profile.save(update_fields=['nickname'])
+    return profile
 
 def _hp_name(request):
     if "hp_name" not in request.session:
@@ -94,16 +103,25 @@ def register(request):
     if request.method == "POST":
         form = UserRegistrationForm(request.POST)
         if form.is_valid():
-            form.save()
-            messages.success(request, "Your account has been created! You can now log in.")
-            return redirect('login')
+            try:
+                form.save()
+            except ValidationError as e:
+                if hasattr(e, 'message_dict'):
+                    for field, errors in e.message_dict.items():
+                        for error in errors:
+                            form.add_error(field, error)
+                else:
+                    form.add_error(None, e)
+            else:
+                messages.success(request, "Your account has been created! You can now log in.")
+                return redirect('login')
     else:
         form = UserRegistrationForm()
     return render(request, 'users/register.html', {'form': form})
 
 @login_required(login_url='login')
 def settings_view(request):
-    profile, _ = Profile.objects.get_or_create(user=request.user)
+    profile = get_or_create_profile(request.user)
     if request.method == 'POST':
         profile_form = UserSettingsForm(request.POST, instance=request.user, profile=profile)
         password_form = PasswordChangeForm(request.user)
@@ -147,14 +165,26 @@ def settings_view(request):
 @login_required(login_url='login')
 def newlist(request):
     if request.method == 'POST':
-        form = NewListingForm(request.POST)
+        form = NewListingForm(request.POST, user=request.user)
         if form.is_valid():
+            form.save()
             messages.success(request, 'New listing created successfully.')
             return redirect('users:home')
     else:
-        form = NewListingForm()
+        form = NewListingForm(user=request.user)
 
     return render(request, 'users/newlist.html', {'form': form})
+
+@login_required(login_url='login')
+def listings_view(request):
+    query = request.GET.get('q', '')
+    if query:
+        listings = Listing.objects.filter(
+            models.Q(title__icontains=query) | models.Q(description__icontains=query)
+        ).order_by('-created_at')
+    else:
+        listings = Listing.objects.all().order_by('-created_at')
+    return render(request, 'users/listings.html', {'listings': listings, 'query': query})
 
 @login_required(login_url='login')
 def mainlist(request):
@@ -182,7 +212,7 @@ def home(request):
         except TypeError:
             is_verified = bool(request.user.is_verified)
 
-    profile, _ = Profile.objects.get_or_create(user=request.user)
+    profile = get_or_create_profile(request.user)
 
     context = {
         "has_device": has_device,

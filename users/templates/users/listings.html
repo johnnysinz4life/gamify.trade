@@ -1,0 +1,26 @@
+{% extends 'main/base.html' %}
+{% load static %}
+{% block title %}Listings - gamify.trade{% endblock %}
+
+{% block content %}
+<h1>Listings</h1>
+
+<form method="get" action="{% url 'users:listings' %}">
+    <input type="text" name="q" value="{{ query }}" placeholder="Search listings...">
+    <button type="submit">Search</button>
+</form>
+
+<div class="listings-grid">
+    {% for listing in listings %}
+        {% if forloop.counter0|divisibleby:3 %}<div class="row">{% endif %}
+        <div class="listing-card">
+            <h3>{{ listing.title }}</h3>
+            <p>{{ listing.description|truncatechars:25 }}</p>
+            <small>By {{ listing.user.username }} on {{ listing.created_at|date:"M d, Y" }}</small>
+        </div>
+        {% if forloop.counter|divisibleby:3 or forloop.last %}</div>{% endif %}
+    {% empty %}
+        <p>No listings found.</p>
+    {% endfor %}
+</div>
+{% endblock %}

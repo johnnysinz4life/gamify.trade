@@ -31,7 +31,7 @@
     background-color: #007BFF;
     color: white;
     border: none;
-    padding: 8px 12px;
+    padding: 10px 12px;
     cursor: pointer;
     border-radius: 5px;
     font-size: 14px;
@@ -101,6 +101,40 @@
 
 .login-container button:hover {
     background-color: #0056b3;
+}
+
+/* Listings grid */
+.listings-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.listings-grid .row {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+}
+
+.listing-card {
+    flex: 1 1 calc(33.333% - 20px);
+    border: 1px solid #ddd;
+    padding: 15px;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.listing-card h3 {
+    margin-top: 0;
+}
+
+.listing-card p {
+    margin: 10px 0;
+}
+
+.listing-card small {
+    color: #666;
 }
 
 .login-container p {
