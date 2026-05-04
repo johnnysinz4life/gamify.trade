@@ -187,6 +187,11 @@ def listings_view(request):
     return render(request, 'users/listings.html', {'listings': listings, 'query': query})
 
 @login_required(login_url='login')
+def profile_view(request):
+    profile = get_or_create_profile(request.user)
+    return render(request, 'users/profile.html', {'profile': profile, 'user': request.user})
+
+@login_required(login_url='login')
 def mainlist(request):
     return redirect('main:home')
 

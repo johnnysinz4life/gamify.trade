@@ -20,6 +20,7 @@
                     <button type="submit">Home</button>
                 </form>
                 <a href="{% url 'users:listings' %}" style="display:inline;"><button>Search Listings</button></a> <!-- Search Button -->
+                <a href="{% url 'users:profile' %}" style="display:inline;"><button>Profile</button></a> <!-- Profile Button -->
                 <form action="{% url 'users:settings' %}" method="post" style="display:inline;"> <!-- Settings Button -->
                     {% csrf_token %}
                     <button type="submit">Settings</button>

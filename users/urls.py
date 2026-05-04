@@ -11,5 +11,6 @@ urlpatterns = [
     path('home/', views.home, name='home'), # Home page URL (after login)
     path('newlist/', views.newlist, name='newlist'), # New listing page URL
     path('listings/', views.listings_view, name='listings'), # Listings page URL
+    path('profile/', views.profile_view, name='profile'), # Profile page URL
     path('mainlist/', views.mainlist, name='mainlist'), # Main list page URL (after login)
 ]

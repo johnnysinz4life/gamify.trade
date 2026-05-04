@@ -137,6 +137,29 @@
     color: #666;
 }
 
+/* Profile page */
+.profile-info {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.profile-section {
+    margin-bottom: 30px;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+}
+
+.profile-section h2 {
+    margin-top: 0;
+    color: #333;
+}
+
+.profile-section p {
+    margin: 10px 0;
+}
+
 .login-container p {
     text-align: center;
     margin-top: 15px;
