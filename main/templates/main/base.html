@@ -21,15 +21,15 @@
                 </form>
                 <a href="{% url 'users:listings' %}" style="display:inline;"><button>Search Listings</button></a> <!-- Search Button -->
                 <a href="{% url 'users:profile' %}" style="display:inline;"><button>Profile</button></a> <!-- Profile Button -->
-                <form action="{% url 'users:settings' %}" method="post" style="display:inline;"> <!-- Settings Button -->
+                <form action="{% url 'users:settings' %}" style="display:inline;"> <!-- Settings Button -->
                     {% csrf_token %}
                     <button type="submit">Settings</button>
                 </form>
-                <form action="{% url 'users:logout' %}" method="post" style="display:inline;"> <!-- Logout Button -->
+                <form action="{% url 'users:logout' %}" style="display:inline;"> <!-- Logout Button -->
                     {% csrf_token %}
                     <button type="submit">Logout</button>
                 </form>
-                <form action="{% url 'users:newlist' %}" method="post" style="display:inline;"> <!-- New Listing Button -->
+                <form action="{% url 'users:newlist' %}" style="display:inline;"> <!-- New Listing Button -->
                     {% csrf_token %}
                     <button type="submit">New Listing</button>
                 </form>

@@ -15,11 +15,15 @@ from django_otp.plugins.otp_totp.models import TOTPDevice
 from .forms import (
     UserRegistrationForm,
     EmailAuthenticationForm,
+    AuthenticationForm,
     UserSettingsForm,
     AccountDeleteForm,
     NewListingForm,
 )
 from .models import Profile, Listing
+import secrets
+import requests
+from django import forms
 
 RECAPTCHA_VERIFY_URL = "https://www.google.com/recaptcha/api/siteverify"
 
@@ -59,10 +63,11 @@ class SecureTwoFactorLoginView(TFLoginView):
             current_step = None
 
         # Run bot checks ONLY on the username/password step
+        # BAA = Bot Attack Prevention. These checks are NOT 2FA checks, and should NOT run on the OTP step.
         if current_step == 'auth':
             hp_name = request.session.get("hp_name", "hp_fallback")
             if request.POST.get(hp_name):
-                messages.error(request, "Bot detected.")
+                messages.error(request, "Bad Authentication Attempt. Please try again.")
                 return redirect('login')
 
             try:
@@ -226,3 +231,19 @@ def home(request):
         "profile": profile,
     }
     return render(request, "main/home.html", context)
+
+class EmailAuthenticationForm(AuthenticationForm):
+    honeypot = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={
+            'autocomplete': 'off',
+            'tabindex': '-1',
+            'style': 'position:absolute; left:-9999px; top:0;'
+        })
+    )
+
+    def clean_honeypot(self):
+        value = self.cleaned_data.get('honeypot')
+        if value:
+            raise forms.ValidationError("Invalid submission.")
+        return value
