@@ -8,6 +8,8 @@ class Profile(models.Model):
     description = models.TextField(blank=True, default='')
     location = models.CharField(max_length=100, blank=True, default='')
     xp = models.PositiveIntegerField(default=0)
+    # keep this field for compatibility with existing migration 0005_profile_classrank
+    classRank = models.CharField(max_length=17, default='Unranked')
 
     @classmethod
     def generate_unique_nickname(cls, user):
@@ -27,6 +29,26 @@ class Profile(models.Model):
     def __str__(self):
         return f"{self.user.username}'s Profile"
 
+    @property
+    def rank(self):
+        """Return the ClassRank instance that matches this profile's XP.
+
+        Falls back to a simple object with `name='Unranked'` if no ranks are defined.
+        """
+        try:
+            rank_obj = ClassRank.get_for_xp(self.xp)
+        except Exception:
+            rank_obj = None
+
+        if rank_obj:
+            return rank_obj
+
+        class _Fallback:
+            def __init__(self, name):
+                self.name = name
+
+        return _Fallback(getattr(self, 'classRank', 'Unranked'))
+
 class Listing(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     title = models.CharField(max_length=100)
@@ -35,3 +57,25 @@ class Listing(models.Model):
 
     def __str__(self):
         return self.title
+
+class ClassRank(models.Model):
+    name = models.CharField(max_length=50, unique=True)
+    xp_threshold = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ['-xp_threshold']
+
+    def __str__(self):
+        return self.name
+
+    @classmethod
+    def get_for_xp(cls, xp: int):
+        """Return the highest ClassRank whose xp_threshold <= xp.
+
+        Returns None if no ClassRank rows exist.
+        """
+        try:
+            return cls.objects.filter(xp_threshold__lte=xp).order_by('-xp_threshold').first()
+        except Exception:
+            return None
+

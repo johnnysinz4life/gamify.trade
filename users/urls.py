@@ -12,4 +12,5 @@ urlpatterns = [
     path('listings/', views.listings_view, name='listings'), # Listings page URL
     path('profile/', views.profile_view, name='profile'), # Profile page URL
     path('mainlist/', views.mainlist, name='mainlist'), # Main list page URL (after login)
+    path('grant_xp/', views.grant_xp, name='grant_xp'), # Placeholder XP grant endpoint
 ]

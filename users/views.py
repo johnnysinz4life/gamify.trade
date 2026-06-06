@@ -196,6 +196,34 @@ def profile_view(request):
     profile = get_or_create_profile(request.user)
     return render(request, 'users/profile.html', {'profile': profile, 'user': request.user})
 
+
+@login_required(login_url='login')
+def grant_xp(request):
+    """Placeholder endpoint to add XP to the logged-in user's profile.
+
+    Accepts POST with an `amount` field (expected integers like 10 or 100).
+    Redirects back to the main home page with a success or error message.
+    """
+    if request.method != 'POST':
+        return redirect('main:home')
+
+    amount = request.POST.get('amount')
+    try:
+        amount = int(amount)
+    except (TypeError, ValueError):
+        messages.error(request, 'Invalid XP amount.')
+        return redirect('main:home')
+
+    if amount not in (10, 100):
+        messages.error(request, 'XP amount not allowed.')
+        return redirect('main:home')
+
+    profile = get_or_create_profile(request.user)
+    profile.xp = profile.xp + amount
+    profile.save(update_fields=['xp'])
+    messages.success(request, f'Added {amount} XP to your profile.')
+    return redirect('main:home')
+
 @login_required(login_url='login')
 def mainlist(request):
     return redirect('main:home')

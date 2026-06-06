@@ -2,7 +2,8 @@ from django.http import HttpResponse
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from django_otp import devices_for_user
-from django_otp.decorators import otp_required  
+from django_otp.decorators import otp_required
+from users.views import get_or_create_profile
 
 @otp_required
 def sensitive_area(request):
@@ -25,5 +26,6 @@ def home(request):
         "has_device": has_device,
         "is_verified": is_verified,
         "user": request.user,
+        "profile": get_or_create_profile(request.user),
     }
     return render(request, "main/home.html", context)

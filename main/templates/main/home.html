@@ -3,9 +3,22 @@
 {% block title %}gamify.trade{% endblock %}
 
 {% block content %}
- <h1>Welcome, {{ user.get_username }} (XP: {{ profile.xp }})</h1>
+ <h1>Welcome, {{ user.get_username }} (XP: {{ profile.xp }}) (Class: {{ profile.rank.name }})</h1>
 
   <div class="card">
+      <div class="row">
+        <form method="post" action="{% url 'users:grant_xp' %}" style="display:inline; margin-right:0.5rem;">
+          {% csrf_token %}
+          <input type="hidden" name="amount" value="10">
+          <button type="submit" class="btn btn-success">+10 XP (placeholder)</button>
+        </form>
+
+        <form method="post" action="{% url 'users:grant_xp' %}" style="display:inline;">
+          {% csrf_token %}
+          <input type="hidden" name="amount" value="100">
+          <button type="submit" class="btn btn-success">+100 XP (placeholder)</button>
+        </form>
+      </div>
     <div class="row">
       <strong>Authentication status:</strong>
       {% if is_verified %}
