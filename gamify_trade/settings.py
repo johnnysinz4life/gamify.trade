@@ -5,6 +5,8 @@ SECRET_KEY = 'django-insecure-8ua%@1u-16o7@zrnzb-4h+!gjzh3hy@ls-4v!%-ksn=sp3s__j
 DEBUG = True
 RECAPTCHA_SECRET_KEY = "6LeMRm4qAAAAAPslEmmSL7zQBpwLV-YHw0R99ytB"
 ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
 INSTALLED_APPS = [
     'users',
     'main',

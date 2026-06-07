@@ -2,6 +2,8 @@ from django.contrib import admin
 from django.urls import include, path
 from django.urls.resolvers import URLPattern, URLResolver
 from users.views import SecureTwoFactorLoginView
+from django.conf import settings
+from django.conf.urls.static import static
 
 def get_two_factor_patterns():
     from two_factor import urls as tf_urls
@@ -22,4 +24,4 @@ urlpatterns = [
     path('', include((get_two_factor_patterns(), 'two_factor'), namespace='two_factor')),
     path('', include(('main.urls', 'main'), namespace='main')),
     path('users/', include(('users.urls', 'users'), namespace='users')), 
-]
+    ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

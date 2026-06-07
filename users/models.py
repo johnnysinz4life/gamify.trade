@@ -49,15 +49,6 @@ class Profile(models.Model):
 
         return _Fallback(getattr(self, 'classRank', 'Unranked'))
 
-class Listing(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    title = models.CharField(max_length=100)
-    description = models.TextField()
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return self.title
-
 class ClassRank(models.Model):
     name = models.CharField(max_length=50, unique=True)
     xp_threshold = models.PositiveIntegerField(default=0)
@@ -78,4 +69,29 @@ class ClassRank(models.Model):
             return cls.objects.filter(xp_threshold__lte=xp).order_by('-xp_threshold').first()
         except Exception:
             return None
+        
+class Tag(models.Model):
+    name = models.CharField(max_length=30, unique=True)
+    slug = models.SlugField(max_length=40, unique=True, blank=True)
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.name)
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.name
+
+class Listing(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    title = models.CharField(max_length=100)
+    description = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    tags = models.ManyToManyField(Tag, blank=True, related_name='listings')
+
+class ListingImage(models.Model):
+    listing = models.ForeignKey(Listing, on_delete=models.CASCADE, related_name='images')
+    image = models.ImageField(upload_to='listing_photos/')
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+
 

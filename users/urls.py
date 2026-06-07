@@ -10,6 +10,7 @@ urlpatterns = [
     path('home/', views.home, name='home'), # Home page URL (after login)
     path('newlist/', views.newlist, name='newlist'), # New listing page URL
     path('listings/', views.listings_view, name='listings'), # Listings page URL
+    path('listing/<int:pk>/', views.listing_detail, name='listing_detail'),
     path('profile/', views.profile_view, name='profile'), # Profile page URL
     path('mainlist/', views.mainlist, name='mainlist'), # Main list page URL (after login)
     path('grant_xp/', views.grant_xp, name='grant_xp'), # Placeholder XP grant endpoint

@@ -1,0 +1,30 @@
+{% extends 'main/base.html' %}
+{% load static %}
+{% block title %}{{ listing.title }} - gamify.trade{% endblock %}
+
+{% block content %}
+<h1>{{ listing.title }}</h1>
+<p>{{ listing.description }}</p>
+<p><strong>By:</strong> {{ listing.user.username }}</p>
+<p><strong>Created:</strong> {{ listing.created_at|date:"M d, Y" }}</p>
+
+{% if listing.tags.all %}
+  <p><strong>Tags:</strong>
+    {% for tag in listing.tags.all %}
+      <span class="tag">{{ tag.name }}</span>
+    {% endfor %}
+  </p>
+{% endif %}
+
+{% if listing.images.all %}
+  <div class="listing-images">
+    {% for image in listing.images.all %}
+      <img src="{{ image.image.url }}" alt="{{ listing.title }}" style="max-width:320px; margin:0.5rem; object-fit:cover;" />
+    {% endfor %}
+  </div>
+{% else %}
+  <p><em>No photos uploaded yet.</em></p>
+{% endif %}
+
+<p><a href="{% url 'users:listings' %}">Back to listings</a></p>
+{% endblock %}

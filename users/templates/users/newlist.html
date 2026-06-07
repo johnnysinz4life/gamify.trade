@@ -3,9 +3,9 @@
 {% block title %}Create New Listing - gamify.trade{% endblock %}
 {% block content %}
     <h1>Create New Listing</h1>
-    <form method="post">
+    <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
         {{ form.as_p }}
-        <button type="submit">New Listing</button>
-    </form>
+    <button type="submit">New Listing</button>
+</form>
 {% endblock %}

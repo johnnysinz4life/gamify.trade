@@ -6,21 +6,31 @@
 <h1>Listings</h1>
 
 <form method="get" action="{% url 'users:listings' %}">
-    <input type="text" name="q" value="{{ query }}" placeholder="Search listings...">
+    <input type="text" name="q" value="{{ query }}" placeholder="Search titles, descriptions, or tags...">
     <button type="submit">Search</button>
 </form>
 
 <div class="listings-grid">
     {% for listing in listings %}
-        {% if forloop.counter0|divisibleby:3 %}<div class="row">{% endif %}
-        <div class="listing-card">
-            <h3>{{ listing.title }}</h3>
-            <p>{{ listing.description|truncatechars:25 }}</p>
-            <small>By {{ listing.user.username }} on {{ listing.created_at|date:"M d, Y" }}</small>
-        </div>
-        {% if forloop.counter|divisibleby:3 or forloop.last %}</div>{% endif %}
-    {% empty %}
-        <p>No listings found.</p>
+    <div class="listing-card">
+        <h3><a href="{% url 'users:listing_detail' listing.pk %}">{{ listing.title }}</a></h3>
+        <p>{{ listing.description|truncatechars:25 }}</p>
+        <p>
+      {% for tag in listing.tags.all %}
+        <span class="tag">{{ tag.name }}</span>
+      {% empty %}
+        <span>No tags</span>
+      {% endfor %}
+    </p>
+    {% if listing.images.all %}
+      <div class="listing-images">
+        {% for image in listing.images.all %}
+          <img src="{{ image.image.url }}" alt="{{ listing.title }}" style="max-width:180px; max-height:120px; object-fit:cover; margin:0.25rem;" />
+        {% endfor %}
+      </div>
+    {% endif %}
+    <small>By {{ listing.user.username }}</small>
+  </div>
     {% endfor %}
 </div>
 {% endblock %}

@@ -3,7 +3,31 @@ from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError, transaction
-from .models import Profile, Listing
+from .models import Profile, Listing, Tag, ListingImage
+
+
+class MultiFileInput(forms.ClearableFileInput):
+    allow_multiple_selected = True
+
+
+class MultiFileField(forms.FileField):
+    widget = MultiFileInput
+
+    def to_python(self, data):
+        if data in self.empty_values:
+            return None
+        if isinstance(data, list):
+            return [super().to_python(item) for item in data]
+        return super().to_python(data)
+
+    def validate(self, data):
+        if data in self.empty_values:
+            return
+        if isinstance(data, list):
+            for item in data:
+                super().validate(item)
+        else:
+            super().validate(data)
 
 class UserRegistrationForm(UserCreationForm):
     email = forms.EmailField(required=True, label="Email")
@@ -108,17 +132,46 @@ class AccountDeleteForm(forms.Form):
 
 
 class NewListingForm(forms.ModelForm):
+    tag_names = forms.CharField(
+        required=False,
+        help_text="Comma-separated tags, e.g. art, gaming, rare"
+    )
+    images = MultiFileField(
+        required=False,
+        widget=MultiFileInput(attrs={'multiple': True})
+    )
+
     class Meta:
         model = Listing
-        fields = ['title', 'description']
+        fields = ['title', 'description', 'tag_names', 'images']
 
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop('user', None)
         super().__init__(*args, **kwargs)
 
     def save(self, commit=True):
-        instance = super().save(commit=False)
-        instance.user = self.user
+        listing = super().save(commit=False)
+        listing.user = self.user
         if commit:
-            instance.save()
-        return instance
+            listing.save()
+
+        tag_names = self.cleaned_data.get('tag_names', '')
+        if tag_names:
+            tags = []
+            for raw_tag in tag_names.split(','):
+                name = raw_tag.strip().lower()
+                if not name:
+                    continue
+                tag, _ = Tag.objects.get_or_create(name=name)
+                tags.append(tag)
+            listing.tags.set(tags)
+
+        images = self.cleaned_data.get('images')
+        if images:
+            if not isinstance(images, list):
+                images = [images]
+            for image_file in images:
+                ListingImage.objects.create(listing=listing, image=image_file)
+
+        return listing
+    

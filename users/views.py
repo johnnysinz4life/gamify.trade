@@ -5,7 +5,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth import update_session_auth_hash
 from django.core.exceptions import ValidationError
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
@@ -170,7 +170,7 @@ def settings_view(request):
 @login_required(login_url='login')
 def newlist(request):
     if request.method == 'POST':
-        form = NewListingForm(request.POST, user=request.user)
+        form = NewListingForm(request.POST, request.FILES, user=request.user)
         if form.is_valid():
             form.save()
             messages.success(request, 'New listing created successfully.')
@@ -185,8 +185,10 @@ def listings_view(request):
     query = request.GET.get('q', '')
     if query:
         listings = Listing.objects.filter(
-            models.Q(title__icontains=query) | models.Q(description__icontains=query)
-        ).order_by('-created_at')
+            models.Q(title__icontains=query)
+            | models.Q(description__icontains=query)
+            | models.Q(tags__name__icontains=query)
+        ).distinct().order_by('-created_at')
     else:
         listings = Listing.objects.all().order_by('-created_at')
     return render(request, 'users/listings.html', {'listings': listings, 'query': query})
@@ -195,6 +197,12 @@ def listings_view(request):
 def profile_view(request):
     profile = get_or_create_profile(request.user)
     return render(request, 'users/profile.html', {'profile': profile, 'user': request.user})
+
+
+@login_required(login_url='login')
+def listing_detail(request, pk):
+    listing = get_object_or_404(Listing, pk=pk)
+    return render(request, 'users/listing_detail.html', {'listing': listing})
 
 
 @login_required(login_url='login')
