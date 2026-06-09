@@ -1,0 +1,26 @@
+{% extends 'main/base.html' %}
+{% block title %}Contact {{ listing.user.username }} - gamify.trade{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1>Contact {{ listing.user.username }}</h1>
+    <p><strong>About:</strong> {{ listing.title }}</p>
+    <p style="color: #ccc; font-size: 0.9rem; margin-top: 0.5rem;">Send a message to start the trade conversation.</p>
+
+    <form method="POST" style="margin-top: 1.5rem;">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="id_content">Message:</label>
+            <textarea id="id_content" name="content" rows="5" placeholder="Type your message..." required></textarea>
+        </div>
+        
+        <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+            <button type="submit" class="gb-btn">Send Message</button>
+            <a href="{% url 'users:listing_detail' pk=listing.pk %}">
+                <button type="button" class="gb-btn">Cancel</button>
+            </a>
+        </div>
+    </form>
+</div>
+{% endblock %}
+

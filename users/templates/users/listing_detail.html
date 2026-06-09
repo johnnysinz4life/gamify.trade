@@ -27,6 +27,17 @@
       <p><em>No photos uploaded yet.</em></p>
     {% endif %}
 
-    <p><a href="{% url 'users:listings' %}">Back to listings</a></p>
+    <div style="margin-top: 1.5rem; display: flex; gap: 1rem; flex-wrap: wrap;">
+      {% if user.is_authenticated and listing.user == user %}
+        <button disabled class="gb-btn-disabled">Cannot contact user</button>
+      {% elif user.is_authenticated %}
+        <a href="{% url 'users:contact_user' pk=listing.pk %}">
+          <button class="gb-btn">Contact User</button>
+        </a>
+      {% else %}
+        <p><em>Log in to contact the seller.</em></p>
+      {% endif %}
+      <a href="{% url 'users:listings' %}" style="align-self: center;"><button>Back to listings</button></a>
+    </div>
 </div>
 {% endblock %}

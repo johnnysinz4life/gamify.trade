@@ -131,6 +131,16 @@ class AccountDeleteForm(forms.Form):
     )
 
 
+class DirectMessageForm(forms.Form):
+    content = forms.CharField(
+        widget=forms.Textarea(attrs={
+            'rows': 5,
+            'placeholder': 'Type your message...'
+        }),
+        label='Message',
+    )
+
+
 class NewListingForm(forms.ModelForm):
     tag_names = forms.CharField(
         required=False,

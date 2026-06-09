@@ -284,6 +284,25 @@ button:active, .btn:active { transform: translateY(-1px) scale(.995); }
 /* Focus accessibility */
 button:focus-visible, .btn:focus-visible { outline: 3px solid rgba(0,200,83,.25); outline-offset: 4px; }
 
+/* Disabled button state */
+button:disabled, .gb-btn-disabled {
+    background: linear-gradient(90deg, #4a4a4a, #5a5a5a);
+    color: #999;
+    cursor: not-allowed;
+    opacity: 0.6;
+    filter: grayscale(0.8);
+}
+
+button:disabled:hover, .gb-btn-disabled:hover {
+    transform: none;
+    filter: grayscale(0.8);
+    box-shadow: 0 6px 18px rgba(2,6,8,.45);
+}
+
+button:disabled:active, .gb-btn-disabled:active {
+    transform: none;
+}
+
 /* Ripple effect element */
 .gb-ripple { position: absolute; border-radius: 50%; background: rgba(255,255,255,0.18); transform: scale(0); animation: gb-rip 0.6s ease-out forwards; pointer-events: none; }
 @keyframes gb-rip { to { transform: scale(1); opacity: 0; } }
@@ -393,6 +412,17 @@ body {
 .page-container select:focus {
     outline: 2px solid rgba(0,200,83,.25);
     outline-offset: 2px;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: #ddd;
 }
 
 .card { max-width: 720px; }

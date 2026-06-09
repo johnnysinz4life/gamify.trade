@@ -2,6 +2,7 @@ from django.db import models
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.models import User
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth import update_session_auth_hash
 from django.core.exceptions import ValidationError
@@ -19,6 +20,7 @@ from .forms import (
     UserSettingsForm,
     AccountDeleteForm,
     NewListingForm,
+    DirectMessageForm,
 )
 from .models import Profile, Listing, DirectMessage
 import secrets
@@ -210,6 +212,59 @@ def direct_messages(request):
     """Display all direct messages received by the logged-in user."""
     messages_received = DirectMessage.objects.filter(recipient=request.user).select_related('sender', 'recipient')
     return render(request, 'users/direct_messages.html', {'messages': messages_received})
+
+
+@login_required(login_url='login')
+def contact_user(request, pk):
+    """Handle composing and sending a direct message to a listing's seller."""
+    listing = get_object_or_404(Listing, pk=pk)
+    
+    # Prevent users from contacting themselves
+    if listing.user == request.user:
+        messages.error(request, 'You cannot contact yourself.')
+        return redirect('users:listing_detail', pk=pk)
+    
+    if request.method == 'POST':
+        form = DirectMessageForm(request.POST)
+        if form.is_valid():
+            DirectMessage.objects.create(
+                sender=request.user,
+                recipient=listing.user,
+                content=form.cleaned_data['content']
+            )
+            messages.success(request, f'Message sent to {listing.user.get_full_name() or listing.user.username}!')
+            return redirect('users:listing_detail', pk=pk)
+    else:
+        form = DirectMessageForm()
+    
+    return render(request, 'users/contact_user.html', {
+        'form': form,
+        'listing': listing,
+    })
+
+
+@login_required(login_url='login')
+def reply_user(request, user_id):
+    """Handle replying to a user's direct message."""
+    recipient = get_object_or_404(User, pk=user_id)
+    
+    if request.method == 'POST':
+        form = DirectMessageForm(request.POST)
+        if form.is_valid():
+            DirectMessage.objects.create(
+                sender=request.user,
+                recipient=recipient,
+                content=form.cleaned_data['content']
+            )
+            messages.success(request, f'Reply sent to {recipient.get_full_name() or recipient.username}!')
+            return redirect('users:messages')
+    else:
+        form = DirectMessageForm()
+    
+    return render(request, 'users/reply_user.html', {
+        'form': form,
+        'recipient': recipient,
+    })
 
 
 @login_required(login_url='login')

@@ -16,9 +16,14 @@
                         <span style="color: #bbb; font-size: 0.875rem;">{{ message.created_at|date:"M d, Y \a\t g:i A" }}</span>
                     </div>
                     <p style="color: #eee; margin: 0.75rem 0;">{{ message.content }}</p>
-                    {% if not message.read %}
-                        <span style="display: inline-block; background: #003106; color: #fff; padding: 0.25rem 0.5rem; border-radius: 0.25rem; font-size: 0.75rem;">New</span>
-                    {% endif %}
+                    <div style="display: flex; gap: 0.75rem; align-items: center; margin-top: 1rem;">
+                        <a href="{% url 'users:reply_user' user_id=message.sender.id %}">
+                            <button class="gb-btn" style="padding: 0.45rem 0.8rem; font-size: 0.875rem;">Reply</button>
+                        </a>
+                        {% if not message.read %}
+                            <span style="display: inline-block; background: #003106; color: #fff; padding: 0.25rem 0.5rem; border-radius: 0.25rem; font-size: 0.75rem;">New</span>
+                        {% endif %}
+                    </div>
                 </div>
             {% endfor %}
         </div>
