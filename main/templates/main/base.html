@@ -4,6 +4,12 @@
 <head>
     <!-- Base HTML code -->
     <title>{% block title %}gamify.trade{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    {% if GOOGLE_FONTS %}
+    <link href="https://fonts.googleapis.com/css2?{% for font in GOOGLE_FONTS %}family={{ font|urlencode }}{% if not forloop.last %}&{% endif %}{% endfor %}&display=swap" rel="stylesheet">
+    <style>:root { --site-font: '{{ PRIMARY_GOOGLE_FONT }}'; }</style>
+    {% endif %}
     <link rel="stylesheet" href="{% static 'main/styles.css' %}">
     <!-- Directly styles base.html by routing to the static CSS file. -->
 </head>
@@ -45,11 +51,14 @@
         </ul>
     {% endif %}
     <main>
-        {% block content %}
-        {% endblock %}
+        <div class="page-container">
+            {% block content %}
+            {% endblock %}
+        </div>
     </main>
     <footer>
         <p>&copy; 2026 gamify.trade</p>
     </footer>
+    <script src="{% static 'main/button.js' %}"></script>
 </body>
 </html>
