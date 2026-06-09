@@ -20,7 +20,7 @@ from .forms import (
     AccountDeleteForm,
     NewListingForm,
 )
-from .models import Profile, Listing
+from .models import Profile, Listing, DirectMessage
 import secrets
 import requests
 from django import forms
@@ -203,6 +203,13 @@ def profile_view(request):
 def listing_detail(request, pk):
     listing = get_object_or_404(Listing, pk=pk)
     return render(request, 'users/listing_detail.html', {'listing': listing})
+
+
+@login_required(login_url='login')
+def direct_messages(request):
+    """Display all direct messages received by the logged-in user."""
+    messages_received = DirectMessage.objects.filter(recipient=request.user).select_related('sender', 'recipient')
+    return render(request, 'users/direct_messages.html', {'messages': messages_received})
 
 
 @login_required(login_url='login')

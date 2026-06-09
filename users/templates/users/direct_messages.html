@@ -1,0 +1,29 @@
+{% extends 'main/base.html' %}
+{% load static %}
+{% block title %}Direct Messages - gamify.trade{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1>Direct Messages</h1>
+    <p>Messages sent to you by other users.</p>
+
+    {% if messages %}
+        <div class="messages-list">
+            {% for message in messages %}
+                <div class="message-item" style="border: 1px solid rgba(255,255,255,0.18); border-radius: 0.5rem; padding: 1.25rem; margin-bottom: 1rem; background: rgba(0,0,0,0.2);">
+                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.75rem;">
+                        <strong style="color: #fff;">{{ message.sender.username }}</strong>
+                        <span style="color: #bbb; font-size: 0.875rem;">{{ message.created_at|date:"M d, Y \a\t g:i A" }}</span>
+                    </div>
+                    <p style="color: #eee; margin: 0.75rem 0;">{{ message.content }}</p>
+                    {% if not message.read %}
+                        <span style="display: inline-block; background: #003106; color: #fff; padding: 0.25rem 0.5rem; border-radius: 0.25rem; font-size: 0.75rem;">New</span>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p style="text-align: center; color: #aaa; padding: 2rem 0;">No messages yet. When someone sends you a message, it will appear here.</p>
+    {% endif %}
+</div>
+{% endblock %}
