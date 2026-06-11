@@ -1,0 +1,10 @@
+{% extends 'main/base.html' %}
+{% load static %}
+{% block title %}Gamify Trade{% endblock %}
+{% block content %}
+    <div class="card">
+        <h1>Sensitive Area</h1>
+        <p>You're viewing a page protected by OTP. If you can see this, your session is 2FA-verified.</p>
+        <p><a href="{% url 'main:home' %}">Back to Home</a></p>
+    </div>
+{% endblock %}

@@ -1,0 +1,50 @@
+{% extends 'main/base.html' %}
+{% load static %}
+{% block title %}gamify.trade{% endblock %}
+
+{% block content %}
+ <h1>Welcome, {{ user.get_username }} (XP: {{ profile.xp }}) (Class: {{ profile.rank.name }})</h1>
+
+  <div class="card">
+      <div class="row">
+        <form method="post" action="{% url 'users:grant_xp' %}" style="display:inline; margin-right:0.5rem;">
+          {% csrf_token %}
+          <input type="hidden" name="amount" value="10">
+          <button type="submit" class="btn btn-success">+10 XP (placeholder)</button>
+        </form>
+
+        <form method="post" action="{% url 'users:grant_xp' %}" style="display:inline;">
+          {% csrf_token %}
+          <input type="hidden" name="amount" value="100">
+          <button type="submit" class="btn btn-success">+100 XP (placeholder)</button>
+        </form>
+      </div>
+    <div class="row">
+      <strong>Authentication status:</strong>
+      {% if is_verified %}
+        <span>✅ 2FA verified for this session.</span>
+      {% elif has_device %}
+        <span>⚠️ You have 2FA set up, but you’re not verified in this session.</span>
+      {% else %}
+        <span>❌ No 2FA device enrolled yet.</span>
+      {% endif %}
+    </div>
+
+    <div class="row">
+      {% if not has_device %}
+        <!-- Start the setup wizard -->
+        <a class="btn btn-primary" href="{% url 'two_factor:setup' %}">Setup 2FA (scan QR)</a>
+      {% else %}
+        <a class="btn" href="{% url 'two_factor:profile' %}">Manage 2FA</a>
+        <a class="btn" href="{% url 'two_factor:backup_tokens' %}">Backup codes</a>
+        <a class="btn" href="{% url 'two_factor:disable' %}">Disable 2FA</a>
+      {% endif %}
+    </div>
+    <hr>
+  </div>
+<!--- Path to protected page that requires OTP verification, confirming you have 2FA properly set up and working. -->
+  <p style="margin-top:2rem;">
+    Try visiting a protected page that <em>requires</em> OTP:
+    <a href="{% url 'main:sensitive' %}">Sensitive area</a>
+  </p>
+{% endblock %}

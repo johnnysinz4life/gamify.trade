@@ -1,0 +1,40 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>{% block title %}gamify.trade{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'main/styles.css' %}">
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <img src="{% static 'main/logo_90.png' %}" alt="Gamify.trade Logo">
+        </div>
+        <div class="user-info">
+            {% if request.user.is_authenticated %}
+                <span>{{ request.user.username }}</span>
+                <form action="{% url 'users:logout' %}" method="post">
+                    {% csrf_token %}
+                    <button type="submit">Logout</button>
+                </form>
+            {% else %}
+            {% endif %}
+        </div>
+    </header>
+    <!-- Messages block -->
+    {% if messages %}
+        <ul class="messages">
+        {% for message in messages %}
+            <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+        {% endfor %}
+        </ul>
+    {% endif %}
+    <main>
+        {% block content %}
+        {% endblock %}
+    </main>
+    <footer>
+        <p>&copy; 2026 gamify.trade</p>
+    </footer>
+</body>
+</html>

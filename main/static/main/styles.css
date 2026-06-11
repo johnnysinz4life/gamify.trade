@@ -1,0 +1,440 @@
+/* Basic styling for the header section */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #f4f4f4;
+    padding: 10px 20px;
+    border-bottom: 1px solid #ddd;
+}
+
+/* Style for the logo in the header */
+.logo img {
+    max-height: 50px;
+}
+
+/* User info section within the header */
+.user-info {
+    display: flex;
+    align-items: center;
+    font-size: 16px;
+}
+
+/* User information span */
+.user-info span {
+    margin-right: 10px;
+    font-weight: bold;
+}
+
+/* Logout button styling */
+.user-info button {
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    padding: 10px 12px;
+    cursor: pointer;
+    border-radius: 5px;
+    font-size: 14px;
+}
+
+/* Logout button hover effect */
+.user-info button:hover {
+    background-color: #0056b3;
+}
+
+/* Style for the messages */
+.messages {
+    list-style-type: none;
+    padding: 0;
+    margin: 10px 0;
+    color: red; /* Change this color based on your message type */
+}
+
+/* Login container styling */
+.login-container {
+    max-width: 480px;
+    margin: 0 auto;
+    padding: 2rem;
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 18px;
+    background: rgba(255,255,255,0.08);
+    box-shadow: 0 18px 45px rgba(0, 0, 0, 0.12);
+}
+
+.login-container h1 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #eee;
+}
+
+.login-container form div {
+    margin-bottom: 15px;
+}
+
+.login-container label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #ddd;
+}
+
+.login-container input[type="text"],
+.login-container input[type="password"] {
+    width: 100%;
+    padding: .85rem 1rem;
+    border: 1px solid rgba(255,255,255,0.18);
+    border-radius: .85rem;
+    font-size: 16px;
+    box-sizing: border-box;
+    background: rgba(255,255,255,0.1);
+    color: #fff;
+}
+
+.login-container button {
+    width: 100%;
+    padding: 12px;
+    background: linear-gradient(90deg,var(--gb-green),var(--gb-black));
+    color: white;
+    border: none;
+    border-radius: .85rem;
+    font-size: 16px;
+    cursor: pointer;
+    transition: transform .16s ease, box-shadow .16s ease, filter .16s ease;
+}
+
+.login-container button:hover {
+    transform: translateY(-2px);
+    filter: brightness(1.05);
+}
+
+/* Listings grid */
+.listings-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.listings-grid .row {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+}
+
+.listing-card {
+    flex: 1 1 calc(33.333% - 20px);
+    border: 1px solid rgba(255,255,255,0.12);
+    padding: 2rem;
+    border-radius: 18px;
+    background: rgba(255,255,255,0.08);
+    box-shadow: 0 18px 45px rgba(0, 0, 0, 0.12);
+    color: #eee;
+}
+
+.listing-card h3 {
+    margin-top: 0;
+    color: #fff;
+}
+
+.listing-card p {
+    margin: 10px 0;
+    color: #eee;
+}
+
+.listing-card small {
+    color: #ddd;
+}
+
+/* Profile page */
+.profile-info {
+    max-width: 980px;
+    margin: 0 auto;
+    display: grid;
+    gap: 2rem;
+}
+
+.profile-section {
+    margin-bottom: 30px;
+    padding: 2rem;
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 18px;
+    background: rgba(255,255,255,0.08);
+    box-shadow: 0 18px 45px rgba(0,0,0,0.12);
+}
+
+.profile-section h2 {
+    margin-top: 0;
+    color: #fff;
+}
+
+.profile-section p {
+    margin: 10px 0;
+}
+
+.settings-page {
+    display: grid;
+    gap: 2rem;
+    max-width: 980px;
+    margin: 0 auto;
+}
+
+.settings-section {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 18px;
+    padding: 2rem;
+    box-shadow: 0 18px 45px rgba(0,0,0,0.12);
+}
+
+.settings-page h1,
+.settings-section h2 {
+    text-align: center;
+}
+
+.settings-page h1 {
+    margin: 1rem;
+}
+
+.settings-page > p {
+    margin: 0 0 1.5rem;
+    max-width: 78ch;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.settings-section h2 {
+    margin-bottom: 1.25rem;
+}
+
+.settings-section p {
+    margin-bottom: 1.5rem;
+    color: #eee;
+}
+
+.login-container p {
+    text-align: center;
+    margin-top: 15px;
+}
+
+.login-container a {
+    color: #007BFF;
+    text-decoration: none;
+}
+
+.login-container a:hover {
+    text-decoration: underline;
+}
+
+.errorlist {
+    color: #dc3545;
+    font-size: 14px;
+    margin-top: 5px;
+}
+
+/* Individual message items */
+.messages li {
+    margin-bottom: 5px;
+}
+
+/* Styling for message tags, like error or success */
+.messages li.error {
+    color: red;
+}
+
+.messages li.success {
+    color: green;
+}
+
+/* Animated Green/Black buttons - applied to bare buttons and .btn classes */
+button, .btn {
+    --gb-green: #003106; /* dark green */
+    --gb-black: #000200; /* near-black */
+    display: inline-block;
+    padding: .55rem .95rem;
+    border-radius: .5rem;
+    color: #fff;
+    background: linear-gradient(90deg,var(--gb-green),var(--gb-black));
+    background-size: 200% 100%;
+    border: none;
+    cursor: pointer;
+    transition: transform .16s ease, box-shadow .16s ease, filter .16s ease;
+    box-shadow: 0 6px 18px rgba(2,6,8,.45);
+    position: relative;
+    overflow: hidden;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+button:hover, .btn:hover {
+    transform: translateY(-3px);
+    filter: brightness(1.02);
+    box-shadow: 0 10px 24px rgba(2,6,8,.5);
+}
+
+button:active, .btn:active { transform: translateY(-1px) scale(.995); }
+
+/* Optional shimmering variant */
+.btn.shimmer, button.shimmer {
+    background-image: linear-gradient(90deg, rgba(255,255,255,0.06), rgba(255,255,255,0.14), rgba(255,255,255,0.06));
+    animation: gb-shimmer 2.2s linear infinite;
+    background-blend-mode: overlay;
+}
+
+@keyframes gb-shimmer { 0%{background-position:-150% 0}100%{background-position:150% 0} }
+
+/* Focus accessibility */
+button:focus-visible, .btn:focus-visible { outline: 3px solid rgba(0,200,83,.25); outline-offset: 4px; }
+
+/* Disabled button state */
+button:disabled, .gb-btn-disabled {
+    background: linear-gradient(90deg, #4a4a4a, #5a5a5a);
+    color: #999;
+    cursor: not-allowed;
+    opacity: 0.6;
+    filter: grayscale(0.8);
+}
+
+button:disabled:hover, .gb-btn-disabled:hover {
+    transform: none;
+    filter: grayscale(0.8);
+    box-shadow: 0 6px 18px rgba(2,6,8,.45);
+}
+
+button:disabled:active, .gb-btn-disabled:active {
+    transform: none;
+}
+
+/* Ripple effect element */
+.gb-ripple { position: absolute; border-radius: 50%; background: rgba(255,255,255,0.18); transform: scale(0); animation: gb-rip 0.6s ease-out forwards; pointer-events: none; }
+@keyframes gb-rip { to { transform: scale(1); opacity: 0; } }
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  button, .btn, .btn.shimmer, button.shimmer { transition: none; animation: none; transform: none; }
+  .gb-ripple { display: none; }
+}
+
+/* Highlighted inline text */
+mark,
+.highlight,
+.search-highlight,
+.highlight-text,
+.tag {
+    background: #003106;
+    color: #fff;
+    padding: 0.1em 0.35em;
+    border-radius: 0.35rem;
+    font-weight: 700;
+}
+
+.tag {
+    display: inline-block;
+    margin-right: 0.35rem;
+    margin-bottom: 0.35rem;
+}
+
+/* Basic styling for links */
+a {
+    color: #ffffff;
+    text-decoration: none;
+    padding: 5px
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+body {
+    background: linear-gradient(rgba(0,0,0,0.35), rgba(0,0,0,0.35)), url('/static/main/PWA_Background.png') center/cover no-repeat fixed;
+    min-height: 100vh;
+    color: #028d12;
+    font-family: var(--site-font, 'Quantico'), system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    margin: 0;
+}
+
+.page-container {
+    display: grid;
+    gap: 2rem;
+    max-width: 980px;
+    margin: 2rem auto 3rem;
+    padding: 0 1rem;
+}
+
+.page-container > h1 {
+    text-align: center;
+    margin: 0 0 0.75rem;
+}
+
+.page-container > p {
+    margin: 0 auto 1.5rem;
+    max-width: 78ch;
+    color: #eee;
+}
+
+.page-card,
+.settings-section,
+.profile-section,
+.login-container,
+.listing-card,
+.card {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 18px;
+    box-shadow: 0 18px 45px rgba(0,0,0,0.12);
+    padding: 2rem;
+}
+
+.page-card {
+    width: 100%;
+}
+
+.page-container form {
+    display: grid;
+    gap: 1rem;
+}
+
+.page-container label {
+    color: #ddd;
+}
+
+.page-container input,
+.page-container textarea,
+.page-container select {
+    width: 100%;
+    padding: .85rem 1rem;
+    border-radius: .85rem;
+    border: 1px solid rgba(255,255,255,0.18);
+    background: rgba(255,255,255,0.1);
+    color: #fff;
+}
+
+.page-container input:focus,
+.page-container textarea:focus,
+.page-container select:focus {
+    outline: 2px solid rgba(0,200,83,.25);
+    outline-offset: 2px;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: #ddd;
+}
+
+.card { max-width: 720px; }
+.row { margin: .5rem 0; }
+.btn { display: inline-block; padding: .5rem .9rem; border-radius: 8px; text-decoration: none; }
+.btn-primary { /* keep for semantic usage, inherits the gb styling */ }
+
+.honeypot {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}

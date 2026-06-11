@@ -1,0 +1,49 @@
+{% extends 'main/base.html' %}
+{% block title %}Reply to {{ recipient.username }} - gamify.trade{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1>Reply to {{ recipient.username }}</h1>
+    <p style="color: #ccc; font-size: 0.9rem; margin-top: 0.5rem;">Continue your conversation with {{ recipient.username }}.</p>
+
+    <div class="messages-list" style="margin-top: 1.25rem;">
+        {% if conversation %}
+            {% for message in conversation %}
+                <div class="message-item" style="border: 1px solid rgba(255,255,255,0.18); border-radius: 0.5rem; padding: 1rem; margin-bottom: 0.75rem; background: rgba(0,0,0,0.18);">
+                    <div style="display:flex; justify-content:space-between; align-items:start; margin-bottom: 0.5rem;">
+                        <strong style="color:#fff;">
+                            {% if message.sender_id == user.id %}
+                                You
+                            {% else %}
+                                {{ recipient.username }}
+                            {% endif %}
+                        </strong>
+                        <span style="color:#bbb; font-size:0.875rem;">
+                            {{ message.created_at|date:"M d, Y \a\t g:i A" }}
+                        </span>
+                    </div>
+                    <p style="color:#eee; margin:0;">{{ message.content }}</p>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p style="text-align:center; color:#aaa; padding: 1.25rem 0;">No messages yet.</p>
+        {% endif %}
+    </div>
+
+    <form method="POST" style="margin-top: 1.5rem;">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="id_content">Message:</label>
+            <textarea id="id_content" name="content" rows="5" placeholder="Type your reply..." required></textarea>
+        </div>
+
+        <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+            <button type="submit" class="gb-btn">Send Reply</button>
+            <a href="{% url 'users:messages' %}">
+                <button type="button" class="gb-btn">Cancel</button>
+            </a>
+        </div>
+    </form>
+</div>
+{% endblock %}
+

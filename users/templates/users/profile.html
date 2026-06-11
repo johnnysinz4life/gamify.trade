@@ -1,0 +1,24 @@
+{% extends 'main/base.html' %}
+{% load static %}
+{% block title %}Profile - gamify.trade{% endblock %}
+
+{% block content %}
+<h1>{{ profile.nickname }}'s Profile</h1>
+
+<div class="profile-info">
+    <div class="profile-section">
+        <h2>Basic Information</h2>
+        <p><strong>Nickname:</strong> {{ profile.nickname }}</p>
+        <p><strong>Email:</strong> {{ user.email }}</p>
+        <p><strong>First Name:</strong> {{ user.first_name }}</p>
+        <p><strong>Last Name:</strong> {{ user.last_name }}</p>
+        <p><strong>XP:</strong> {{ profile.xp }}</p>
+    </div>
+
+    <div class="profile-section">
+        <h2>Additional Details</h2>
+        <p><strong>Description:</strong> {{ profile.description|default:"No description provided." }}</p>
+        <p><strong>Location:</strong> {{ profile.location|default:"No location provided." }}</p>
+    </div>
+</div>
+{% endblock %}

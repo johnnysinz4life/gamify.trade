@@ -1,0 +1,65 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Base HTML code -->
+    <title>{% block title %}gamify.trade{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    {% if GOOGLE_FONTS %}
+    <link href="https://fonts.googleapis.com/css2?{% for font in GOOGLE_FONTS %}family={{ font|urlencode }}{% if not forloop.last %}&{% endif %}{% endfor %}&display=swap" rel="stylesheet">
+    <style>:root { --site-font: '{{ PRIMARY_GOOGLE_FONT }}'; }</style>
+    {% endif %}
+    <link rel="stylesheet" href="{% static 'main/styles.css' %}">
+    <!-- Directly styles base.html by routing to the static CSS file. -->
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <img src="{% static 'main/logo_90.png' %}" alt="Gamify.trade Logo">     <!-- gamify.trade Logo -->
+        </div>
+        <div class="user-info">
+            {% if request.user.is_authenticated %}
+                <span>{{ request.user.username }}</span>
+                <form action="{% url 'users:home' %}" method="post" style="display:inline;">     <!-- Home Button -->
+                    {% csrf_token %}
+                    <button type="submit">Home</button>
+                </form>
+                <a href="{% url 'users:listings' %}" style="display:inline;"><button>Search Listings</button></a> <!-- Search Button -->
+                <a href="{% url 'users:messages' %}" style="display:inline;"><button>Messages</button></a> <!-- Messages Button -->
+                <a href="{% url 'users:profile' %}" style="display:inline;"><button>Profile</button></a> <!-- Profile Button -->
+                <form action="{% url 'users:settings' %}" style="display:inline;"> <!-- Settings Button -->
+                    {% csrf_token %}
+                    <button type="submit">Settings</button>
+                </form>
+                <form action="{% url 'users:logout' %}" style="display:inline;"> <!-- Logout Button -->
+                    {% csrf_token %}
+                    <button type="submit">Logout</button>
+                </form>
+                <form action="{% url 'users:newlist' %}" style="display:inline;"> <!-- New Listing Button -->
+                    {% csrf_token %}
+                    <button type="submit">New Listing</button>
+                </form>
+            {% else %}
+            {% endif %}
+        </div>
+    </header>
+    {% if messages %}
+        <ul class="messages">
+        {% for message in messages %}
+            <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li> <!-- Code to display any messages (like success or error notifications) to the user. -->
+        {% endfor %}
+        </ul>
+    {% endif %}
+    <main>
+        <div class="page-container">
+            {% block content %}
+            {% endblock %}
+        </div>
+    </main>
+    <footer>
+        <p>&copy; 2026 gamify.trade</p>
+    </footer>
+    <script src="{% static 'main/button.js' %}"></script>
+</body>
+</html>
