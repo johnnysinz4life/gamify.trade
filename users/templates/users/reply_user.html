@@ -6,6 +6,7 @@
     <h1>Reply to {{ recipient.username }}</h1>
     <p style="color: #ccc; font-size: 0.9rem; margin-top: 0.5rem;">Continue your conversation with {{ recipient.username }}.</p>
 
+<<<<<<< HEAD
     <div class="messages-list" style="margin-top: 1.25rem;">
         {% if conversation %}
             {% for message in conversation %}
@@ -30,13 +31,19 @@
         {% endif %}
     </div>
 
+=======
+>>>>>>> 7b2a0d43d258997679e7e7955c775192d328da81
     <form method="POST" style="margin-top: 1.5rem;">
         {% csrf_token %}
         <div class="form-group">
             <label for="id_content">Message:</label>
             <textarea id="id_content" name="content" rows="5" placeholder="Type your reply..." required></textarea>
         </div>
+<<<<<<< HEAD
 
+=======
+        
+>>>>>>> 7b2a0d43d258997679e7e7955c775192d328da81
         <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
             <button type="submit" class="gb-btn">Send Reply</button>
             <a href="{% url 'users:messages' %}">
@@ -46,4 +53,7 @@
     </form>
 </div>
 {% endblock %}
+<<<<<<< HEAD
 
+=======
+>>>>>>> 7b2a0d43d258997679e7e7955c775192d328da81
