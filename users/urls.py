@@ -14,7 +14,16 @@ urlpatterns = [
     path('listing/<int:pk>/contact/', views.contact_user, name='contact_user'),
     path('messages/', views.direct_messages, name='messages'), # Direct messages page
     path('reply/<int:user_id>/', views.reply_user, name='reply_user'),
+
+    # Trade controls (DM-based)
+    path('reply/<int:user_id>/trade/close/', views.trade_close, name='trade_close'),
+    path('reply/<int:user_id>/trade/conclude/', views.trade_conclude, name='trade_conclude'),
+    path('reply/<int:user_id>/trade/rate/', views.trade_rate, name='trade_rate'),
+
     path('profile/', views.profile_view, name='profile'), # Profile page URL
+
     path('mainlist/', views.mainlist, name='mainlist'), # Main list page URL (after login)
     path('grant_xp/', views.grant_xp, name='grant_xp'), # Placeholder XP grant endpoint
+
 ]
+

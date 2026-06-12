@@ -4,9 +4,9 @@
 {% block content %}
 <div class="card">
     <h1>Reply to {{ recipient.username }}</h1>
+
     <p style="color: #ccc; font-size: 0.9rem; margin-top: 0.5rem;">Continue your conversation with {{ recipient.username }}.</p>
 
-<<<<<<< HEAD
     <div class="messages-list" style="margin-top: 1.25rem;">
         {% if conversation %}
             {% for message in conversation %}
@@ -31,29 +31,83 @@
         {% endif %}
     </div>
 
-=======
->>>>>>> 7b2a0d43d258997679e7e7955c775192d328da81
-    <form method="POST" style="margin-top: 1.5rem;">
-        {% csrf_token %}
-        <div class="form-group">
-            <label for="id_content">Message:</label>
-            <textarea id="id_content" name="content" rows="5" placeholder="Type your reply..." required></textarea>
+    {% if trade and trade.status == trade.Status.EXPIRED_INACTIVE %}
+        <div style="margin-top: 1.25rem; padding: 0.75rem 1rem; background: rgba(255,0,0,0.08); border: 1px solid rgba(255,0,0,0.25); border-radius: 0.5rem;">
+            <strong style="color:#ffb3b3;">Trade is shut down due to inactivity.</strong>
         </div>
-<<<<<<< HEAD
+    {% else %}
+        <form method="POST" style="margin-top: 1.5rem;">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="id_content">Message:</label>
+                <textarea id="id_content" name="content" rows="5" placeholder="Type your reply..." required></textarea>
+            </div>
+            <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+                <button type="submit" class="gb-btn">Send Reply</button>
+                <a href="{% url 'users:messages' %}">
+                    <button type="button" class="gb-btn">Cancel</button>
+                </a>
+            </div>
+        </form>
+    {% endif %}
 
-=======
-        
->>>>>>> 7b2a0d43d258997679e7e7955c775192d328da81
-        <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
-            <button type="submit" class="gb-btn">Send Reply</button>
-            <a href="{% url 'users:messages' %}">
-                <button type="button" class="gb-btn">Cancel</button>
-            </a>
-        </div>
-    </form>
+    <div style="margin-top: 1.75rem; border-top: 1px solid rgba(255,255,255,0.12); padding-top: 1.25rem;">
+        <h3 style="margin:0 0 0.75rem 0;">Trade Controls</h3>
+
+        {% if trade and trade.status != trade.Status.EXPIRED_INACTIVE %}
+            <div style="display:flex; gap:1rem; flex-wrap:wrap;">
+                <form method="POST" action="{% url 'users:trade_close' user_id=recipient.id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="gb-btn" {% if request.user.id == trade.user_a_id %}{% if trade.close_a_confirmed %}disabled{% endif %}{% else %}{% if trade.close_b_confirmed %}disabled{% endif %}{% endif %}>
+                        Close DM
+                    </button>
+                </form>
+
+
+                <form method="POST" action="{% url 'users:trade_conclude' user_id=recipient.id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="gb-btn" {% if request.user.id == trade.user_a_id %}{% if trade.conclude_a_confirmed %}disabled{% endif %}{% else %}{% if trade.conclude_b_confirmed %}disabled{% endif %}{% endif %}>
+                        Conclude Trade
+                    </button>
+                </form>
+            </div>
+
+            {% if trade.status == trade.Status.CLOSED_PRE_TRADE %}
+                <p style="margin-top:0.75rem; color:#bbb;">Trade closed (no XP awarded).</p>
+            {% elif trade.status == trade.Status.CONCLUDED_AWAITING_RATING %}
+                <p style="margin-top:0.75rem; color:#bbb;">Rate the trade:</p>
+
+                <div style="display:flex; gap:0.75rem; flex-wrap:wrap; margin-top: 0.75rem;">
+                    <form method="POST" action="{% url 'users:trade_rate' user_id=recipient.id %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="rating" value="GOOD" />
+                        <button type="submit" class="gb-btn" {% if request.user.id == trade.user_a_id %}{% if trade.a_rating %}disabled{% endif %}{% else %}{% if trade.b_rating %}disabled{% endif %}{% endif %}>Good</button>
+                    </form>
+                    <form method="POST" action="{% url 'users:trade_rate' user_id=recipient.id %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="rating" value="GREAT" />
+                        <button type="submit" class="gb-btn" {% if request.user.id == trade.user_a_id %}{% if trade.a_rating %}disabled{% endif %}{% else %}{% if trade.b_rating %}disabled{% endif %}{% endif %}>Great</button>
+                    </form>
+                    <form method="POST" action="{% url 'users:trade_rate' user_id=recipient.id %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="rating" value="BAD" />
+                        <button type="submit" class="gb-btn" {% if request.user.id == trade.user_a_id %}{% if trade.a_rating %}disabled{% endif %}{% else %}{% if trade.b_rating %}disabled{% endif %}{% endif %}>Bad</button>
+                    </form>
+                    <form method="POST" action="{% url 'users:trade_rate' user_id=recipient.id %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="rating" value="TERRIBLE" />
+                        <button type="submit" class="gb-btn" {% if request.user.id == trade.user_a_id %}{% if trade.a_rating %}disabled{% endif %}{% else %}{% if trade.b_rating %}disabled{% endif %}{% endif %}>Terrible</button>
+                    </form>
+                </div>
+            {% elif trade.status == trade.Status.CONCLUDED_FINAL %}
+                <p style="margin-top:0.75rem; color:#bbb;">Trade concluded.</p>
+            {% else %}
+                <p style="margin-top:0.75rem; color:#bbb;">Waiting on both parties to confirm actions.</p>
+            {% endif %}
+        {% else %}
+            <p style="margin-top:0.5rem; color:#bbb;">Trade session will appear here when you start confirming trade actions.</p>
+        {% endif %}
+    </div>
 </div>
 {% endblock %}
-<<<<<<< HEAD
 
-=======
->>>>>>> 7b2a0d43d258997679e7e7955c775192d328da81

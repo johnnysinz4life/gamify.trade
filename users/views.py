@@ -22,7 +22,8 @@ from .forms import (
     NewListingForm,
     DirectMessageForm,
 )
-from .models import Profile, Listing, DirectMessage
+from .models import Profile, Listing, DirectMessage, TradeSession
+
 import secrets
 import requests
 from django import forms
@@ -185,14 +186,16 @@ def newlist(request):
 @login_required(login_url='login')
 def listings_view(request):
     query = request.GET.get('q', '')
+    base_qs = Listing.objects.filter(is_active=True)
     if query:
-        listings = Listing.objects.filter(
+        listings = base_qs.filter(
             models.Q(title__icontains=query)
             | models.Q(description__icontains=query)
             | models.Q(tags__name__icontains=query)
         ).distinct().order_by('-created_at')
     else:
-        listings = Listing.objects.all().order_by('-created_at')
+        listings = base_qs.order_by('-created_at')
+
     return render(request, 'users/listings.html', {'listings': listings, 'query': query})
 
 @login_required(login_url='login')
@@ -204,7 +207,11 @@ def profile_view(request):
 @login_required(login_url='login')
 def listing_detail(request, pk):
     listing = get_object_or_404(Listing, pk=pk)
+    if not listing.is_active:
+        messages.error(request, 'This listing is no longer active.')
+        return redirect('users:listings')
     return render(request, 'users/listing_detail.html', {'listing': listing})
+
 
 
 @login_required(login_url='login')
@@ -244,6 +251,10 @@ def direct_messages(request):
 def contact_user(request, pk):
     """Handle composing and sending a direct message to a listing's seller."""
     listing = get_object_or_404(Listing, pk=pk)
+    if not listing.is_active:
+        messages.error(request, 'This listing is no longer active.')
+        return redirect('users:listing_detail', pk=pk)
+
     
     # Prevent users from contacting themselves
     if listing.user == request.user:
@@ -269,10 +280,53 @@ def contact_user(request, pk):
     })
 
 
+def _get_trade_session_for_pair(user_a, user_b):
+
+    # Users must grade their previous trade before starting a new one.
+    if TradeSession.any_unrated_concluded_for_user(user_a) or TradeSession.any_unrated_concluded_for_user(user_b):
+        return TradeSession.objects.filter(
+            models.Q(user_a=user_a, user_b=user_b) | models.Q(user_a=user_b, user_b=user_a)
+        ).first()
+
+    from django.db.models import Q
+
+    a_id = user_a.id
+    b_id = user_b.id
+    # Treat as unordered pair: try both orientations.
+    trade = TradeSession.objects.filter(
+        Q(user_a_id=a_id, user_b_id=b_id) | Q(user_a_id=b_id, user_b_id=a_id)
+    ).first()
+    if trade:
+        return trade
+    if a_id == b_id:
+        return None
+    # Persist a deterministic orientation
+    if a_id < b_id:
+        u1, u2 = user_a, user_b
+    else:
+        u1, u2 = user_b, user_a
+    return TradeSession.objects.create(user_a=u1, user_b=u2)
+
+
+def _trade_is_expired(trade):
+    from django.utils import timezone
+    from datetime import timedelta
+    if not trade:
+        return True
+    if trade.status == TradeSession.Status.EXPIRED_INACTIVE:
+        return True
+    return trade.last_activity_at <= (timezone.now() - timedelta(days=7))
+
+
+
+
+
 @login_required(login_url='login')
 def reply_user(request, user_id):
     """Reply to a user and show message history between the two users."""
+
     other_user = get_object_or_404(User, pk=user_id)
+
 
     # Message history for the conversation between the two users.
     conversation = (
@@ -290,30 +344,191 @@ def reply_user(request, user_id):
     if request.method == 'POST':
         form = DirectMessageForm(request.POST)
         if form.is_valid():
+            trade_tmp = _get_trade_session_for_pair(request.user, other_user)
+            if trade_tmp and _trade_is_expired(trade_tmp):
+                # DM thread is still visible, but trade is shutdown.
+                messages.error(request, 'Trade is closed due to inactivity.')
+                return redirect('users:reply_user', user_id=other_user.pk)
+
             DirectMessage.objects.create(
                 sender=request.user,
                 recipient=other_user,
                 content=form.cleaned_data['content'],
             )
+
+            if trade_tmp:
+                trade_tmp.last_activity_at = timezone.now()
+                trade_tmp.save(update_fields=['last_activity_at'])
+
+
+
             messages.success(request, f'Reply sent to {other_user.get_full_name() or other_user.username}!')
             return redirect('users:reply_user', user_id=other_user.pk)
+
     else:
         form = DirectMessageForm()
+
+    trade = _get_trade_session_for_pair(request.user, other_user)
+    if trade and _trade_is_expired(trade):
+        trade.status = TradeSession.Status.EXPIRED_INACTIVE
+        trade.save(update_fields=['status'])
+
 
     return render(
         request,
         'users/reply_user.html',
         {
             'form': form,
+
+
             'recipient': other_user,
             'conversation': conversation,
+            'trade': trade,
         },
     )
+
+
+@login_required(login_url='login')
+def trade_close(request, user_id):
+    other_user = get_object_or_404(User, pk=user_id)
+    if other_user == request.user:
+        messages.error(request, 'Cannot trade with yourself.')
+        return redirect('users:reply_user', user_id=other_user.pk)
+
+    trade = _get_trade_session_for_pair(request.user, other_user)
+    if not trade:
+        messages.error(request, 'Trade session could not be created.')
+        return redirect('users:reply_user', user_id=other_user.pk)
+
+    if _trade_is_expired(trade):
+        trade.status = TradeSession.Status.EXPIRED_INACTIVE
+        trade.save(update_fields=['status'])
+        messages.error(request, 'Trade is closed due to inactivity.')
+        return redirect('users:reply_user', user_id=other_user.pk)
+
+    trade.mark_close_confirmed(request.user)
+    trade.save()
+
+    return redirect('users:reply_user', user_id=other_user.pk)
+
+
+@login_required(login_url='login')
+def trade_conclude(request, user_id):
+    other_user = get_object_or_404(User, pk=user_id)
+    if other_user == request.user:
+        messages.error(request, 'Cannot trade with yourself.')
+        return redirect('users:reply_user', user_id=other_user.pk)
+
+    trade = _get_trade_session_for_pair(request.user, other_user)
+    if not trade:
+        messages.error(request, 'Trade session could not be created.')
+        return redirect('users:reply_user', user_id=other_user.pk)
+
+    if _trade_is_expired(trade):
+        trade.status = TradeSession.Status.EXPIRED_INACTIVE
+        trade.save(update_fields=['status'])
+        messages.error(request, 'Trade is closed due to inactivity.')
+        return redirect('users:reply_user', user_id=other_user.pk)
+
+    trade.mark_conclude_confirmed(request.user)
+    trade.save()
+
+    return redirect('users:reply_user', user_id=other_user.pk)
+
+
+@login_required(login_url='login')
+def trade_rate(request, user_id):
+    other_user = get_object_or_404(User, pk=user_id)
+    if other_user == request.user:
+        messages.error(request, 'Cannot trade with yourself.')
+        return redirect('users:reply_user', user_id=other_user.pk)
+
+    trade = _get_trade_session_for_pair(request.user, other_user)
+    if not trade:
+        messages.error(request, 'Trade session could not be created.')
+        return redirect('users:reply_user', user_id=other_user.pk)
+
+    if _trade_is_expired(trade):
+        trade.status = TradeSession.Status.EXPIRED_INACTIVE
+        trade.save(update_fields=['status'])
+        messages.error(request, 'Trade is closed due to inactivity.')
+        return redirect('users:reply_user', user_id=other_user.pk)
+
+    if trade.status != TradeSession.Status.CONCLUDED_AWAITING_RATING:
+        messages.error(request, 'Trade is not ready for rating.')
+        return redirect('users:reply_user', user_id=other_user.pk)
+
+    rating = request.POST.get('rating')
+    if rating not in [r.value for r in TradeSession.Rating]:
+        messages.error(request, 'Invalid rating.')
+        return redirect('users:reply_user', user_id=other_user.pk)
+
+    if request.user.id == trade.user_a_id:
+        if trade.a_rating:
+            messages.error(request, 'You already rated.')
+            return redirect('users:reply_user', user_id=other_user.pk)
+        trade.a_rating = rating
+    elif request.user.id == trade.user_b_id:
+        if trade.b_rating:
+            messages.error(request, 'You already rated.')
+            return redirect('users:reply_user', user_id=other_user.pk)
+        trade.b_rating = rating
+    else:
+        messages.error(request, 'Not part of this trade.')
+        return redirect('users:reply_user', user_id=other_user.pk)
+
+    # Award XP to the other user based on rating:
+    # Great = 20, Good = 5, Bad = -5, Terrible = -20
+    from django.utils import timezone
+
+    other = trade.other_of(request.user)
+    if request.user.id == trade.user_a_id and not trade.xp_awarded_a_to_other:
+        if rating == TradeSession.Rating.GREAT.value:
+            award = 20
+        elif rating == TradeSession.Rating.GOOD.value:
+            award = 5
+        elif rating == TradeSession.Rating.BAD.value:
+            award = -5
+        else:
+            award = -20
+
+        prof, _ = Profile.objects.get_or_create(user=other)
+        prof.xp += award
+        prof.save(update_fields=['xp'])
+        trade.xp_awarded_a_to_other = True
+    elif request.user.id == trade.user_b_id and not trade.xp_awarded_b_to_other:
+        if rating == TradeSession.Rating.GREAT.value:
+            award = 20
+        elif rating == TradeSession.Rating.GOOD.value:
+            award = 5
+        elif rating == TradeSession.Rating.BAD.value:
+            award = -5
+        else:
+            award = -20
+
+        prof, _ = Profile.objects.get_or_create(user=other)
+        prof.xp += award
+        prof.save(update_fields=['xp'])
+        trade.xp_awarded_b_to_other = True
+
+
+    trade.last_activity_at = timezone.now()
+
+    # If both rated, finalize
+    if trade.a_rating and trade.b_rating:
+        trade.status = TradeSession.Status.CONCLUDED_FINAL
+        trade.concluded_final_at = timezone.now()
+
+    trade.save()
+
+    messages.success(request, 'Trade rated. XP awarded.')
+    return redirect('users:reply_user', user_id=other_user.pk)
 
 
 
 @login_required(login_url='login')
 def grant_xp(request):
+
     """Placeholder endpoint to add XP to the logged-in user's profile.
 
     Accepts POST with an `amount` field (expected integers like 10 or 100).
