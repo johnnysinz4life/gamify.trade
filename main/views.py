@@ -9,8 +9,13 @@ from users.views import get_or_create_profile
 def sensitive_area(request):
     return render(request, "main/sensitive.html")
 
+def landing(request):
+    return render(request, 'main/landing.html')
+
+
 @login_required(login_url='login')
 def home(request):
+
     # Do they have any OTP device configured?
     has_device = any(devices_for_user(request.user, for_verify=True))
 

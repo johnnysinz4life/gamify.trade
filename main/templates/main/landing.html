@@ -1,0 +1,55 @@
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block title %}gamify.trade{% endblock %}
+
+{% block content %}
+  <div class="landing-wrap page-card">
+    <section class="landing-grid">
+      <div class="landing-auth">
+        <div class="landing-auth-panel">
+          <h1>Welcome to gamify.trade</h1>
+          <p class="landing-subtitle">Earn XP, climb ranks, and trade with confidence.</p>
+
+          <div class="landing-auth-actions">
+            <a class="btn" href="{% url 'login' %}">Login</a>
+            <a class="btn" href="{% url 'users:register' %}">Register</a>
+          </div>
+
+          <div class="landing-auth-note">
+            <small>Already have an account? Login. New here? Register to get started.</small>
+          </div>
+        </div>
+      </div>
+
+      <div class="landing-values">
+        <div class="landing-values-inner">
+          <article class="value-card">
+            <h2>RANKING SYSTEM</h2>
+            <p>
+              Here at gamify.trade, we believe we should have a trustable way for gamers of all ages to engage with their traders.
+              We have incorporated a ranking system, where you can earn XP and rise up the ranks to be come the most respected trade of them all!
+            </p>
+          </article>
+
+          <article class="value-card">
+            <h2>ENJOYABLE EXPERIENCE</h2>
+            <p>
+              Another one of our core principles is to ensure users of all ages are easily able to access our website.
+              We’ve seen time and time again how trading websites have old, clunky UI that makes you want to tear your hair out sometimes — so our UI is streamlined to avoid this issue.
+            </p>
+          </article>
+
+          <article class="value-card">
+            <h2>MODEST MODERATION</h2>
+            <p>
+              In case any bad actors attempt to heist your goods or disrespect you in your direct messages,
+              we have a moderation team, monitoring around the clock to ensure your goods are secured in the trading process.
+            </p>
+          </article>
+        </div>
+      </div>
+    </section>
+  </div>
+{% endblock %}
+
