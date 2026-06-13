@@ -6,7 +6,9 @@
 <div class="card">
     <h1>{{ listing.title }}</h1>
     <p>{{ listing.description }}</p>
-    <p><strong>By:</strong> {{ listing.user.username }}</p>
+    <p><strong>Nickname:</strong> {{ listing.user.profile.nickname }}</p>
+    <p><strong>Rank:</strong> {{ listing.user.profile.rank.name }}</p>
+
     <p><strong>Created:</strong> {{ listing.created_at|date:"M d, Y" }}</p>
 
     {% if listing.tags.all %}
@@ -30,6 +32,14 @@
     <div style="margin-top: 1.5rem; display: flex; gap: 1rem; flex-wrap: wrap;">
       {% if user.is_authenticated and listing.user == user %}
         <button disabled class="gb-btn-disabled">Cannot contact user</button>
+
+        <a href="{% url 'users:edit_listing' listing.pk %}"><button>Edit Listing</button></a>
+
+        <form method="post" action="{% url 'users:delete_listing_confirm' listing.pk %}" style="display:inline;">
+          {% csrf_token %}
+          <button type="submit">Delete Listing</button>
+        </form>
+
       {% elif user.is_authenticated %}
         <a href="{% url 'users:contact_user' pk=listing.pk %}">
           <button class="gb-btn">Contact User</button>
@@ -41,3 +51,4 @@
     </div>
 </div>
 {% endblock %}
+

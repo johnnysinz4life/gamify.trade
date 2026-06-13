@@ -10,7 +10,7 @@
     <button type="submit">Search</button>
 </form>
 
-<div class="listings-grid">
+    <div class="listings-grid">
     {% for listing in listings %}
     <div class="listing-card">
         <h3><a href="{% url 'users:listing_detail' listing.pk %}">{{ listing.title }}</a></h3>
@@ -29,7 +29,10 @@
         {% endfor %}
       </div>
     {% endif %}
-    <small>By {{ listing.user.username }}</small>
+    <div style="margin-top:0.5rem;">
+      <small>By {{ listing.user.profile.nickname }}</small><br>
+      <small>Rank: {{ listing.user.profile.rank.name }}</small>
+    </div>
   </div>
     {% endfor %}
 </div>

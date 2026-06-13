@@ -25,7 +25,10 @@
                     {% csrf_token %}
                     <button type="submit">Home</button>
                 </form>
+                <a href="{% url 'users:view_my_listings' %}" style="display:inline;"><button>My Listings</button></a>
+
                 <a href="{% url 'users:listings' %}" style="display:inline;"><button>Search Listings</button></a> <!-- Search Button -->
+
                 <a href="{% url 'users:messages' %}" style="display:inline;"><button>Messages</button></a> <!-- Messages Button -->
                 <a href="{% url 'users:profile' %}" style="display:inline;"><button>Profile</button></a> <!-- Profile Button -->
                 <form action="{% url 'users:settings' %}" style="display:inline;"> <!-- Settings Button -->

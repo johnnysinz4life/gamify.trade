@@ -1,0 +1,56 @@
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block title %}My Listings - gamify.trade{% endblock %}
+
+{% block content %}
+  <h1>My Listings</h1>
+
+  <div style="display:flex; justify-content:space-between; align-items:center; gap:1rem; flex-wrap:wrap; margin-bottom:1rem;">
+    <div>
+      <a href="{% url 'users:view_my_listings' %}?sort=open"><button class="gb-btn">Sort By: Open</button></a>
+      <a href="{% url 'users:view_my_listings' %}?sort=closed" style="margin-left:0.5rem;"><button>Sort By: Closed</button></a>
+    </div>
+  </div>
+
+  {% if listings %}
+    <div class="listings-grid">
+      {% for listing in listings %}
+        <div class="listing-card">
+          <h3><a href="{% url 'users:listing_detail' listing.pk %}">{{ listing.title }}</a></h3>
+          <p>{{ listing.description|truncatechars:25 }}</p>
+          <p>
+            {% for tag in listing.tags.all %}
+              <span class="tag">{{ tag.name }}</span>
+            {% empty %}
+              <span>No tags</span>
+            {% endfor %}
+          </p>
+
+          {% if listing.images.all %}
+            <div class="listing-images">
+              {% for image in listing.images.all %}
+                <img src="{{ image.image.url }}" alt="{{ listing.title }}" style="max-width:180px; max-height:120px; object-fit:cover; margin:0.25rem;" />
+              {% endfor %}
+            </div>
+          {% endif %}
+
+          <div style="margin-top:0.5rem;">
+            <div><small>By {{ listing.user.profile.nickname }}</small></div>
+            <div><small>Rank: {{ listing.user.profile.rank.name }}</small></div>
+          </div>
+
+          <div style="margin-top:0.75rem; display:flex; gap:0.5rem;">
+            <a href="{% url 'users:edit_listing' listing.pk %}"><button>Edit</button></a>
+            <a href="{% url 'users:delete_listing_confirm' listing.pk %}"><button>Delete</button></a>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div style="min-height:60vh; display:flex; align-items:center; justify-content:center; text-align:center;">
+      <p>No listings are currently available.</p>
+    </div>
+  {% endif %}
+{% endblock %}
+

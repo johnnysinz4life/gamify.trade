@@ -9,8 +9,15 @@ urlpatterns = [
     path('settings/', views.settings_view, name='settings'), # User settings page URL
     path('home/', views.home, name='home'), # Home page URL (after login)
     path('newlist/', views.newlist, name='newlist'), # New listing page URL
-    path('listings/', views.listings_view, name='listings'), # Listings page URL
+    path('listings/', views.listings_view, name='listings'), # Search Listings page URL
+
+    # My Listings
+    path('mylistings/', views.view_my_listings, name='view_my_listings'),
+    path('mylistings/<int:pk>/edit/', views.edit_listing, name='edit_listing'),
+    path('mylistings/<int:pk>/delete/', views.delete_listing_confirm, name='delete_listing_confirm'),
+
     path('listing/<int:pk>/', views.listing_detail, name='listing_detail'),
+
     path('listing/<int:pk>/contact/', views.contact_user, name='contact_user'),
     path('messages/', views.direct_messages, name='messages'), # Direct messages page
     path('reply/<int:user_id>/', views.reply_user, name='reply_user'),

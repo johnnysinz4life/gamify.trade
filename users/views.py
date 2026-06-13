@@ -22,6 +22,7 @@ from .forms import (
     NewListingForm,
     DirectMessageForm,
 )
+
 from .models import Profile, Listing, DirectMessage, TradeSession
 
 import secrets
@@ -197,6 +198,67 @@ def listings_view(request):
         listings = base_qs.order_by('-created_at')
 
     return render(request, 'users/listings.html', {'listings': listings, 'query': query})
+
+
+@login_required(login_url='login')
+def view_my_listings(request):
+    sort = request.GET.get('sort', 'open')
+    qs = Listing.objects.filter(user=request.user)
+
+    if sort == 'closed':
+        qs = qs.filter(is_active=False)
+    else:
+        qs = qs.filter(is_active=True)
+
+    listings = qs.order_by('-created_at')
+    return render(
+        request,
+        'users/my_listings.html',
+        {
+            'listings': listings,
+            'sort': sort,
+        },
+    )
+
+
+@login_required(login_url='login')
+def edit_listing(request, pk):
+    listing = get_object_or_404(Listing, pk=pk, user=request.user)
+
+    if request.method == 'POST':
+        form = NewListingForm(request.POST, request.FILES, instance=listing, user=request.user)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Listing updated successfully.')
+            return redirect('users:view_my_listings')
+    else:
+        tag_names = ', '.join(listing.tags.values_list('name', flat=True))
+        form = NewListingForm(
+            instance=listing,
+            user=request.user,
+            initial={'tag_names': tag_names},
+        )
+
+    return render(request, 'users/newlist.html', {'form': form})
+
+
+@login_required(login_url='login')
+def delete_listing_confirm(request, pk):
+    listing = get_object_or_404(Listing, pk=pk, user=request.user)
+
+    if request.method == 'POST':
+        listing.delete()  # HARD DELETE (no soft-delete)
+        messages.success(request, 'Listing deleted successfully.')
+        return redirect('users:listings')
+
+    return render(
+        request,
+        'users/delete_listing_confirm.html',
+        {
+            'listing': listing,
+        },
+    )
+
 
 @login_required(login_url='login')
 def profile_view(request):
