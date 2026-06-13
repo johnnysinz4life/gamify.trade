@@ -30,7 +30,9 @@
                 <a href="{% url 'users:listings' %}" style="display:inline;"><button>Search Listings</button></a> <!-- Search Button -->
 
                 <a href="{% url 'users:messages' %}" style="display:inline;"><button>Messages</button></a> <!-- Messages Button -->
+                <a href="{% url 'users:inbox_notifications' %}" style="display:inline;"><button>Inbox</button></a> <!-- Notifications Button -->
                 <a href="{% url 'users:profile' %}" style="display:inline;"><button>Profile</button></a> <!-- Profile Button -->
+
                 <form action="{% url 'users:settings' %}" style="display:inline;"> <!-- Settings Button -->
                     {% csrf_token %}
                     <button type="submit">Settings</button>

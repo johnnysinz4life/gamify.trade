@@ -10,6 +10,8 @@ MEDIA_ROOT = BASE_DIR / 'media'
 INSTALLED_APPS = [
     'users',
     'main',
+    'notifications',
+
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -83,3 +85,4 @@ USE_TZ = True
 STATIC_URL = '/static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 GOOGLE_FONTS = ['Quantico']
+

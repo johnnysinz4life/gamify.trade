@@ -1,0 +1,35 @@
+{% extends 'main/base.html' %}
+{% block title %}Inbox - gamify.trade{% endblock %}
+
+{% block content %}
+<div class="page-container">
+    <h1>Inbox</h1>
+    <p style="color:#bbb;">Most recent notifications.</p>
+
+    {% if notifications %}
+        <ul style="list-style:none; padding:0; margin:0;">
+            {% for n in notifications %}
+                <li style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12); border-radius:18px; padding: 16px 18px; margin: 10px 0; box-shadow: 0 18px 45px rgba(0,0,0,0.12);">
+                    <div style="font-weight:600; display:flex; justify-content:space-between; gap:12px;">
+                        <div style="display:flex; flex-direction:column; gap:4px;">
+                            <span style="color:#fff;">{{ n.verb }}</span>
+                            {% if n.description %}
+                                <div style="opacity:0.9; margin-top:6px; color:#eee;">{{ n.description }}</div>
+                            {% endif %}
+                        </div>
+                        <span style="opacity:0.65; font-size:12px; white-space:nowrap;">{{ n.timestamp|date:'Y-m-d H:i' }}</span>
+                    </div>
+
+                    {% if n.description %}
+                        <div style="opacity:0.9; margin-top:6px; color:#eee;">{{ n.description }}</div>
+                    {% endif %}
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p style="color:#aaa;">No notifications yet.</p>
+    {% endif %}
+
+</div>
+{% endblock %}
+

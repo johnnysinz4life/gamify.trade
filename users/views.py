@@ -29,6 +29,12 @@ import secrets
 import requests
 from django import forms
 
+from .notifications import notify_dm_received, notify_xp_awarded
+
+from notifications.models import Notification
+
+
+
 RECAPTCHA_VERIFY_URL = "https://www.google.com/recaptcha/api/siteverify"
 
 def get_or_create_profile(user):
@@ -326,11 +332,12 @@ def contact_user(request, pk):
     if request.method == 'POST':
         form = DirectMessageForm(request.POST)
         if form.is_valid():
-            DirectMessage.objects.create(
+            dm = DirectMessage.objects.create(
                 sender=request.user,
                 recipient=listing.user,
                 content=form.cleaned_data['content']
             )
+            notify_dm_received(sender=request.user, recipient=listing.user, content=dm.content)
             messages.success(request, f'Message sent to {listing.user.get_full_name() or listing.user.username}!')
             return redirect('users:listing_detail', pk=pk)
     else:
@@ -412,13 +419,15 @@ def reply_user(request, user_id):
                 messages.error(request, 'Trade is closed due to inactivity.')
                 return redirect('users:reply_user', user_id=other_user.pk)
 
-            DirectMessage.objects.create(
+            dm = DirectMessage.objects.create(
                 sender=request.user,
                 recipient=other_user,
                 content=form.cleaned_data['content'],
             )
+            notify_dm_received(sender=request.user, recipient=other_user, content=dm.content)
 
             if trade_tmp:
+                from django.utils import timezone
                 trade_tmp.last_activity_at = timezone.now()
                 trade_tmp.save(update_fields=['last_activity_at'])
 
@@ -558,6 +567,7 @@ def trade_rate(request, user_id):
         prof.xp += award
         prof.save(update_fields=['xp'])
         trade.xp_awarded_a_to_other = True
+        notify_xp_awarded(sender=request.user, recipient=other, amount=award, reason=f"Trade rating: {rating}")
     elif request.user.id == trade.user_b_id and not trade.xp_awarded_b_to_other:
         if rating == TradeSession.Rating.GREAT.value:
             award = 20
@@ -572,6 +582,7 @@ def trade_rate(request, user_id):
         prof.xp += award
         prof.save(update_fields=['xp'])
         trade.xp_awarded_b_to_other = True
+        notify_xp_awarded(sender=request.user, recipient=other, amount=award, reason=f"Trade rating: {rating}")
 
 
     trade.last_activity_at = timezone.now()
@@ -630,7 +641,18 @@ def logout_view(request):
     return redirect('login')
 
 @login_required(login_url='login')
+def inbox_notifications(request):
+    """Render the user's most recent HQ notifications."""
+    notifications = (
+        Notification.objects.filter(recipient=request.user, deleted=False)
+        .order_by('-timestamp')
+        [:20]
+    )
+    return render(request, 'users/inbox_notifications.html', {'notifications': notifications})
+
+
 def home(request):
+
     # Do they have any OTP device configured?
     has_device = TOTPDevice.objects.filter(user=request.user, confirmed=True).exists()
 
