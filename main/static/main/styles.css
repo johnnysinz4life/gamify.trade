@@ -10,7 +10,7 @@
 
 /* Style for the logo in the header */
 .logo img {
-    max-height: 50px;
+    max-height: 100px;
 }
 
 /* User info section within the header */
@@ -264,6 +264,29 @@ button, .btn {
     text-decoration: none;
 }
 
+/* Navbar/buttons: */
+button.btn, button.btn *,
+.btn * { color: #fff !important; }
+
+/* Highlighted inline text: light green */
+mark,
+.highlight,
+.search-highlight,
+.highlight-text,
+.tag {
+    background: transparent !important;
+    color: #7CFF9B !important;
+    padding: 0.1em 0.35em;
+    border-radius: 0.35rem;
+    font-weight: 700;
+}
+
+.tag {
+    display: inline-block;
+    margin-right: 0.35rem;
+    margin-bottom: 0.35rem;
+}
+
 button:hover, .btn:hover {
     transform: translateY(-3px);
     filter: brightness(1.02);
@@ -320,7 +343,8 @@ mark,
 .highlight-text,
 .tag {
     background: #003106;
-    color: #fff;
+    color: #fff !important;
+
     padding: 0.1em 0.35em;
     border-radius: 0.35rem;
     font-weight: 700;
@@ -343,13 +367,61 @@ a:hover {
     text-decoration: underline;
 }
 
+:root {
+    /* Used to recolor Bootstrap text */
+    --gb-boosted-text: #8FFFB1;
+    --gb-boosted-muted-text: rgba(143, 255, 177, 0.78);
+
+    /* Bootstrap variable overrides (only take effect when Bootstrap CSS is present) */
+    --bs-body-color: var(--gb-boosted-text);
+    --bs-secondary-color: var(--gb-boosted-muted-text);
+    --bs-tertiary-color: var(--gb-boosted-muted-text);
+    --bs-muted-color: var(--gb-boosted-muted-text);
+}
+
 body {
     background: linear-gradient(rgba(0,0,0,0.35), rgba(0,0,0,0.35)), url('/static/main/PWA_Background.png') center/cover no-repeat fixed;
     min-height: 100vh;
-    color: #028d12;
+    color: var(--gb-boosted-muted-text);
+
     font-family: var(--site-font, 'Quantico'), system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
     margin: 0;
 }
+
+/* Bootstrap text utility overrides
+   NOTE: highlighted text stays a certain colour via the `mark/.highlight/...` rule below. */
+.text-body,
+.text-secondary,
+.text-muted,
+.text-tertiary,
+.text-dark,
+.text-black-50,
+.text-body-emphasis,
+.form-text,
+.lead,
+.small.form-text,
+.dropdown-item,
+.card-text,
+.nav-link,
+.navbar-text {
+    color: var(--gb-boosted-muted-text) !important;
+}
+
+/* Force body text to be a certain colour */
+body,
+body * {
+    color: var(--gb-boosted-muted-text) !important;
+}
+
+mark,
+.highlight,
+.search-highlight,
+.highlight-text,
+.tag {
+    color: #fff !important;
+}
+
+
 
 .page-container {
     display: grid;

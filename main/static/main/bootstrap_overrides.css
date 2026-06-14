@@ -1,0 +1,64 @@
+/* Bootstrap grey -> light green/grey overrides
+   Loaded AFTER bootstrap.min.css so it wins reliably.
+   Highlighted text stays white.
+*/
+
+:root {
+  --gb-boosted-text: #8FFFB1;
+  --gb-boosted-muted-text: #ffffff;
+}
+
+/* Highlighted text must be white */
+mark,
+.highlight,
+.search-highlight,
+.highlight-text,
+.tag {
+  background: #003106 !important;
+  color: #fff !important;
+}
+
+/* Bootstrap utility text greys */
+.text-body,
+.text-secondary,
+.text-muted,
+.text-tertiary,
+.text-dark,
+.text-black-50,
+.text-body-emphasis,
+.form-text,
+.lead,
+.small.form-text,
+.dropdown-item,
+.card-text,
+.nav-link,
+.navbar-text {
+  color: var(--gb-boosted-muted-text) !important;
+}
+
+/* Make default body text green/grey too (unless highlighted) */
+body,
+body * {
+  color: var(--gb-boosted-muted-text) !important;
+}
+
+mark,
+.highlight,
+.search-highlight,
+.highlight-text,
+.tag {
+  color: #fff !important;
+}
+
+/* Home page grid nudge (move right a bit) */
+.home-grid-shift {
+  transform: translateX(100px);
+}
+
+/* Center the direct messages page card */
+.direct-messages-center {
+  max-width: 980px;
+  margin: 2rem auto 0;
+  width: 100%;
+}
+

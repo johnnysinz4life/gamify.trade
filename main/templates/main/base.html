@@ -2,6 +2,13 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <style>
+        /* Revert navbar colors to match existing theme */
+        .navbar { background: transparent !important; padding: 10px 20px; }
+        .navbar-nav .nav-link { color: inherit !important; }
+        .navbar-text { color: inherit !important; }
+    </style>
+
     <!-- Base HTML code -->
     <title>{% block title %}gamify.trade{% endblock %}</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -10,62 +17,106 @@
     <link href="https://fonts.googleapis.com/css2?{% for font in GOOGLE_FONTS %}family={{ font|urlencode }}{% if not forloop.last %}&{% endif %}{% endfor %}&display=swap" rel="stylesheet">
     <style>:root { --site-font: '{{ PRIMARY_GOOGLE_FONT }}'; }</style>
     {% endif %}
-    <link rel="stylesheet" href="{% static 'main/styles.css' %}">
-    <link rel="stylesheet" href="{% static 'main/landing.css' %}">
+
     <!-- Directly styles base.html by routing to the static CSS file. -->
+<!-- Bootstrap CSS (CDN) -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+
+    <!-- Load app/theme overrides AFTER Bootstrap so Bootstrap's greys get recolored -->
+    <link rel="stylesheet" href="{% static 'main/bootstrap_overrides.css' %}">
+
+    <!-- Existing app styles -->
+    <link rel="stylesheet" href="{% static 'main/styles.css' %}">
+    {% block extra_css %}
+    <link rel="stylesheet" href="{% static 'main/landing.css' %}">
+    {% endblock %}
 </head>
 <body>
+
     <header>
-        <div class="logo">
-            <img src="{% static 'main/logo_90.png' %}" alt="Gamify.trade Logo">     <!-- gamify.trade Logo -->
-        </div>
-        <div class="user-info">
-            {% if request.user.is_authenticated %}
-                <span>{{ request.user.username }}</span>
-                <form action="{% url 'users:home' %}" method="post" style="display:inline;">     <!-- Home Button -->
-                    {% csrf_token %}
-                    <button type="submit">Home</button>
-                </form>
-                <a href="{% url 'users:view_my_listings' %}" style="display:inline;"><button>My Listings</button></a>
+        <nav class="navbar navbar-expand-lg">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="{% url 'main:home' %}">
+                    <img src="{% static 'main/logo_90.png' %}" alt="Gamify.trade Logo" style="max-height: 50px;">
+                </a>
 
-                <a href="{% url 'users:listings' %}" style="display:inline;"><button>Search Listings</button></a> <!-- Search Button -->
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#siteNavbar" aria-controls="siteNavbar" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
 
-                <a href="{% url 'users:messages' %}" style="display:inline;"><button>Messages</button></a> <!-- Messages Button -->
-                <a href="{% url 'users:inbox_notifications' %}" style="display:inline;"><button>Inbox</button></a> <!-- Notifications Button -->
-                <a href="{% url 'users:profile' %}" style="display:inline;"><button>Profile</button></a> <!-- Profile Button -->
+                <div class="collapse navbar-collapse" id="siteNavbar">
+                    <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-lg-center gap-lg-2">
+                        {% if request.user.is_authenticated %}
+                            <li class="nav-item me-2">
+                                <span class="navbar-text">{{ request.user.username }}</span>
+                            </li>
 
-                <form action="{% url 'users:settings' %}" style="display:inline;"> <!-- Settings Button -->
-                    {% csrf_token %}
-                    <button type="submit">Settings</button>
-                </form>
-                <form action="{% url 'users:logout' %}" style="display:inline;"> <!-- Logout Button -->
-                    {% csrf_token %}
-                    <button type="submit">Logout</button>
-                </form>
-                <form action="{% url 'users:newlist' %}" style="display:inline;"> <!-- New Listing Button -->
-                    {% csrf_token %}
-                    <button type="submit">New Listing</button>
-                </form>
-            {% else %}
-            {% endif %}
-        </div>
+                            <li class="nav-item">
+                                <form action="{% url 'users:home' %}" method="post" class="m-0">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-link text-decoration-none">Home</button>
+                                </form>
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link p-0" href="{% url 'users:inbox_notifications' %}"><button>Inbox</button></a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link p-0" href="{% url 'users:profile' %}"><button>Profile</button></a>
+                            </li>
+
+                            <li class="nav-item">
+                                <form action="{% url 'users:settings' %}" method="post" class="m-0">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-link text-decoration-none">Settings</button>
+                                </form>
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link p-0" href="{% url 'users:messages' %}"><button>Messages</button></a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link p-0" href="{% url 'users:view_my_listings' %}"><button>My Listings</button></a>
+                            </li>
+
+                            <li class="nav-item">
+                                <form action="{% url 'users:newlist' %}" method="post" class="m-0">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-link text-decoration-none">New Listing</button>
+                                </form>
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link p-0" href="{% url 'users:listings' %}"><button>Search Listings</button></a>
+                            </li>
+
+                            <li class="nav-item">
+                                <form action="{% url 'users:logout' %}" method="post" class="m-0">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-link text-decoration-none">Logout</button>
+                                </form>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+        </nav>
     </header>
-    {% if messages %}
-        <ul class="messages">
-        {% for message in messages %}
-            <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li> <!-- Code to display any messages (like success or error notifications) to the user. -->
-        {% endfor %}
-        </ul>
-    {% endif %}
+
     <main>
         <div class="page-container">
             {% block content %}
             {% endblock %}
         </div>
     </main>
-    <footer>
-        <p>&copy; 2026 gamify.trade</p>
+    <footer style="margin-bottom: auto; width: 100%;">
+        <p style="margin:5;">&copy; 2026 gamify.trade</p>
     </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
     <script src="{% static 'main/button.js' %}"></script>
 </body>
 </html>
+

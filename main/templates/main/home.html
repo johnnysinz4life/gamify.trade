@@ -5,7 +5,7 @@
 {% block content %}
  <h1>Welcome, {{ user.get_username }} (XP: {{ profile.xp }}) (Class: {{ profile.rank.name }})</h1>
 
-  <div class="card">
+  <div class="card home-grid-shift">
       <div class="row">
         <form method="post" action="{% url 'users:grant_xp' %}" style="display:inline; margin-right:0.5rem;">
           {% csrf_token %}
