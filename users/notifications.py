@@ -10,12 +10,10 @@ User = get_user_model()
 
 
 def notify_dm_received(*, sender, recipient, content: str) -> None:
-
-    """Notify a user that they received a DM."""
     notify.send(
         sender=sender,
         recipient=recipient,
-        verb="sent you a direct message",
+        verb="Someone sent you a direct message!",
         description=content[:200],
     )
 

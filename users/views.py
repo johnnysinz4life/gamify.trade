@@ -253,8 +253,10 @@ def delete_listing_confirm(request, pk):
     listing = get_object_or_404(Listing, pk=pk, user=request.user)
 
     if request.method == 'POST':
-        listing.delete()  # HARD DELETE (no soft-delete)
-        messages.success(request, 'Listing deleted successfully.')
+        # Soft-delete: make listing invisible to public, but keep it for the author.
+        listing.is_active = False
+        listing.save(update_fields=['is_active'])
+        messages.success(request, 'Listing moved to closed successfully.')
         return redirect('users:listings')
 
     return render(
